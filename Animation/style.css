@@ -1,0 +1,90 @@
+h1, p {
+  font-family: Lato;
+}
+
+.showTransition {
+  background: #9CDCFA;
+  padding: 10px;
+  display: inline-block;
+  transition: 1s
+}
+
+.showTransition:hover {
+  background: #104870;
+  color: white
+}
+
+.styleClass {
+  margin-top: 20px;
+  padding: 0 20px;
+  font-size: 20px;
+  display: inline-block;
+  text-align: center;
+  color: white;
+  background: #104870;
+}
+
+.transition div{
+  padding: 10px;
+}
+
+/* 为什么 transition 的时间设定没有生效？好气哦！*/
+
+.transition{
+  height: 43px;
+  transition: 1s;
+}
+
+.transition:hover{
+  height: 245px;
+  /* transform: rotate(720deg) */
+  transition: 2s;
+}
+
+/* 为什么对 border 变化的时间设定还是没有生效？*/
+
+@keyframes border {
+  from{
+    border: 0 solid #fff
+  }
+  to{
+    border: 25px solid #4bb5f8
+  }
+}
+
+.animationBorderTest {
+  margin-top: 20px;
+  text-align: center;
+  width: 100px;
+  animation: border 1s infinite alternate;
+}
+
+/* ------------------------------------- */
+
+@keyframes move {
+  to{
+    transform: translate(100px, 0) rotate(1080deg) scale(1, 1);
+  }
+}
+
+.transitionTransformTest{
+  text-align: center;
+  width: 50px;
+  font-size: 20px;
+  animation: move 2s ease-in-out alternate;
+}
+
+
+@keyframes outline {
+  0% {
+    stroke-dashoffset: 400px;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+#lineAB{
+  animation: outline 3s ease-in-out;
+  stroke-dasharray: 400px;
+}
