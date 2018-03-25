@@ -127,9 +127,9 @@ JSObjectCallAsFunction(ctx, objFunc, NULL, 0, 0, NULL);
 
 **Java  <-->  C++  <-->  JavaScript**
 
-可见，在 RN 中，C++ 作为桥梁，在 Java 和 JS 之间进行消息的传递。
+可见，在 RN 中，C++ 作为桥梁，在 Java 和 JS 之间进行消息的传递。
 
-## 1、Java 层
+## 1、Java 层
 
 **一点说明：在代码中，注释了敲黑板的地方，都是重点哦！**
 
@@ -455,7 +455,7 @@ public class CatalystInstanceImpl implements CatalystInstance {
 
 ## 2、Bridge 层
 
-这一层的实现使用了 C++。
+这一层的实现使用了 C++。
 
 首先，解释下 JNI，因为 Java 不能直接调用 WebKit，需要通过 JNI，JNI 再调用WebKit。
 
@@ -616,14 +616,13 @@ void JSCExecutor::setGlobalVariable(const std::string& propName, const std::stri
 }
 ```
 
-在刚才的 jni/react/JSCExecutor.cpp 的 setGlobalVariable 方法中，调用了 JSContextGetGlobalObject。JSContextGetGlobalObject 其实是一个 WebKit 的方法，其目的是获取 Global 全局对象。
-setGlobalVariable 方法第一个参数 propName 是从 Java 层传递过来的，有两个可能的值：__fbBatchedBridgeConfig 和 __RCTProfileIsProfiling。
+在刚才的 jni/react/JSCExecutor.cpp 的 setGlobalVariable 方法中，调用了 JSContextGetGlobalObject。JSContextGetGlobalObject 其实是一个 WebKit 的方法，其目的是获取 Global 全局对象。setGlobalVariable 方法第一个参数 propName 是从 Java 层传递过来的，有两个可能的值：__fbBatchedBridgeConfig 和 __RCTProfileIsProfiling。
 
-获取了 global 全局对象，并获取了 jsonValue，就调用方法 JSObjectSetProperty，这个的作用就好像是
+获取了 global 全局对象，并获取了 jsonValue，就调用方法 JSObjectSetProperty，这个的作用就好像
 
 `global.__fbBatchedBridgeConfig = jsonValue;`
 
-于是 javascript 接收到了关于 JavaScriptModule 的信息，将会生成一张映射表。
+于是 javascript 接收到了关于 JavaScriptModule 的信息，将会生成一张映射表。
 
 具体代码位于 node_modules\react-native\Libraries\BatchedBridge\BatchedBridge.js。
 
@@ -636,7 +635,7 @@ const BatchedBridge = new MessageQueue(
 );
 ```
 
-MessageQueue：
+MessageQueue：
 
 ```JavaScript
 class MessageQueue {
@@ -680,7 +679,7 @@ _genLookupTables(modulesConfig, moduleTable, methodTable) {
 
 ### callFunction 的调用
 
-就要连起来了，下面就来回顾一下 JSCExecutor.cpp 中的 callFunction 调用过程。
+就要连起来了，下面就来回顾一下 JSCExecutor.cpp 中的 callFunction 调用过程。
 
 这两段代码前文提到过：
 
@@ -738,7 +737,7 @@ module.exports = BatchedBridge;
 ```
 
 参照敲黑板部分的代码，
-`__fbBatchedBridge.callFunctionReturnFlushedQueue.apply(null, jsonArgs);` 也就相当于：
+`__fbBatchedBridge.callFunctionReturnFlushedQueue.apply(null, jsonArgs);` 也就相当于：
 `global.__fbBatchedBridge = new MessageQueue(...args);`
 
 callFunction 调用的也就成了：
@@ -766,7 +765,7 @@ var guard = (fn) => {
 };
 ```
 
-this.__callFunction 方法：
+this.__callFunction 方法：
 
 ```JavaScript
 __callFunction(module, method, args) {
@@ -792,7 +791,7 @@ __callFunction(module, method, args) {
 
 注意，所有的 Javascript 组件都是通过 registerCallableModule 来注册的，比如触摸事件 RCTEventEmitter.java 对应的组件 RCTEventEmitter.js。
 
-这两个文件中的方法，其实是可以一一对映的。
+这两个文件中的方法，其实可以一一对映的。
 
 最后，给出一个总结性的图：
 
