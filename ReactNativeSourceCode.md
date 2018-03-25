@@ -1,20 +1,16 @@
 长文...还在持续生长中.....
 
-# 目录
-
-[toc]
-
 # 一、ReactNative 概览与基础类
 
 ## ReactNative 是做什么的？
 
 > React Native lets you build mobile apps using only JavaScript. It uses the same design as React, letting you compose a rich mobile UI from declarative components.
 
-React Native 允许开发者使用 JavaScript 和 React 来构建 APP！并且，用 Native 构建起来的 APP 就是和使用原生语言开发一样的 APP，并不是什么 h5 嵌入到 APP 中这样的模式。
+React Native 允许开发者使用 JavaScript 和 React 来构建 APP！并且，用 Native 构建起来的 APP 就是和使用原生语言开发一样的 APP，并不是什么 h5 嵌入到 APP 中这样的模式。
 
 ## ReactNative 源码概览
 
-ReactNative 最核心的实现是基于 c, c++ 实现的。它作为原生应用和 JS 之间的桥梁，负责两边的通信以及对 JS 的解析。
+ReactNative 最核心的实现是基于 c, c++ 实现的，作为原生应用和 JS 之间的桥梁，负责两边的通信以及对 JS 的解析。
 
 ReactNative 源码的框架大致如下：
 ![系统框架](imgs/react_native_system_strcuture.png)
@@ -73,7 +69,7 @@ RN 解析 JS 用的是 Webkit 的脚本引擎 JavaScriptCore，JavaScriptCore �
 
 #### step 1. 获取 Global 全局对象
 
-```
+``` 
 JSGlobalContextRef context = JSGlobalContextCreate(NULL);
 JSObjectRef global = JSContextGetGlobalObject(ctx); 
 ```
@@ -121,7 +117,7 @@ JSObjectCallAsFunction(ctx, objFunc, NULL, 0, 0, NULL);
 
 # 三、详述 Native 与 Javascript 通信
 
-[节选自 CSDN 博客：Native 与 Javascript 通信原理](https://blog.csdn.net/MegatronKings/article/details/51114278)
+[节选自 CSDN 博客：Native 与 Javascript 通信原理](https://blog.csdn.net/MegatronKings/article/details/51114278)
 
 通信模型框架：
 
@@ -137,7 +133,7 @@ JSObjectCallAsFunction(ctx, objFunc, NULL, 0, 0, NULL);
 
 React-Native 实现了一些组件，比如按键、触摸等等，所有的组件都必须继承 JavaScriptModule（这是 Java 写的）接口标准。JavaScriptModule 位于 com.facebook.react.bridge。
 
-关于 JavaScriptModule 官方给出需要注意的内容包括：
+关于 JavaScriptModule 官方给出需要注意的内容包括：
 
 > 1.Interface denoting that a class is the interface to a module with the same name in JS. Calling functions on this interface will result in corresponding methods in JS being called.
 
@@ -451,7 +447,7 @@ public class CatalystInstanceImpl implements CatalystInstance {
 }
 ```
 
-调用的方式：所有 Java 向 Javascript 的通信请求都是通过 ReactBridge.callFunction（去看 Bridge 层会发现，其实这是一个 c++ 的方法，因为 Java 想调用 JS 还是要通过 c++ 的啊）！参数就是一系列的 Id（moduleId, methodId），以及其他参数。
+调用的方式：所有 Java 向 Javascript 的通信请求都是通过 ReactBridge.callFunction（去看 Bridge 层会发现，其实这是一个 c++ 的方法，因为 Java 想调用 JS 还是要通过 c++ 的啊）！参数就是一系列的 Id（moduleId, methodId），和调用 method 需要的参数。
 
 ## 2、Bridge 层
 
