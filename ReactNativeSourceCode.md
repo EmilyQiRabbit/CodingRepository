@@ -1,3 +1,9 @@
+长文...还在持续生长中.....
+
+# 目录
+
+[toc]
+
 # 一、ReactNative 概览与基础类
 
 ## ReactNative 是做什么的？
@@ -76,7 +82,7 @@ JSObjectRef global = JSContextGetGlobalObject(ctx);
 
 下面这段代码就涉及到了很多 C++ 与 JS 交互的关键方法，比如 JSStringCreateWithUTF8CString、JSValueToObject 等等。
 
-```
+``` Java
 //获取全局变量
 JSStringRef varName = JSStringCreateWithUTF8CString("JavaScript变量名");
 JSValueRef var = JSObjectGetProperty(ctx, globalObj, varName,NULL); JSStringRelease(varName);
@@ -115,13 +121,17 @@ JSObjectCallAsFunction(ctx, objFunc, NULL, 0, 0, NULL);
 
 # 三、详述 Native 与 Javascript 通信
 
+[节选自 CSDN 博客：Native 与 Javascript 通信原理](https://blog.csdn.net/MegatronKings/article/details/51114278)
+
 通信模型框架：
 
-**Java  ↔︎  C++  ↔︎  JavaScript**
+**Java  <-->  C++  <-->  JavaScript**
 
 可见，在 RN 中，C++ 作为桥梁，在 Java 和 JS 之间进行消息的传递。
 
 ## 1、Java 层
+
+**一点说明：在代码中，注释了敲黑板的地方，都是重点哦！**
 
 ### JavaScriptModule
 
@@ -148,9 +158,9 @@ React-Native 实现了一些组件，比如按键、触摸等等，所有的组�
 
 这里，以一个触摸组件为栗子，看 JavaScriptModule 是如何注册组件并传递消息给 JS 的。
 
-这个组件是 RCTEventEmitter，可以发现它依旧是一个 interface 哈。
+该触摸组件的“类”为 RCTEventEmitter，可以发现它依旧是一个 interface 哈。
 
-```
+``` Java
 public interface RCTEventEmitter extends JavaScriptModule {
   public void receiveEvent(int targetTag, String eventName, @Nullable WritableMap event);
   public void receiveTouches(
@@ -160,18 +170,630 @@ public interface RCTEventEmitter extends JavaScriptModule {
 }
 ```
 
+首先，所有 JavaScriptModule 组件都需要在 CatalystInstance 中注册，注册过程为：
 
+1、RCTEventEmitter 组装在 CoreModulesPackage 中。通过 ReactInstanceManagerImpl 中的 processPackage 方法可以将 CoreModulesPackage 和其他开发者自定义的 Package 添加到 JavaScriptModulesConfig 里。
 
+``` Java
+// ReactInstanceManagerImpl 的方法
+private void processPackage(ReactPackage reactPackage, 
+  ReactApplicationContext reactContext, 
+  NativeModuleRegistry.Builder nativeRegistryBuilder,
+  JavaScriptModulesConfig.Builder jsModulesBuilder) {
 
+    ...
 
+    for (Class<? extends JavaScriptModule> jsModuleClass : reactPackage.createJSModules()){
+      jsModulesBuilder.add(jsModuleClass);
+      // JavaScriptModulesConfig.Builder jsModulesBuilder
+    }
+  }
+```
 
+2、JavaScriptModulesConfig：
 
+```Java
+public class JavaScriptModulesConfig {
 
+  private final List<JavaScriptModuleRegistration> mModules;
 
+  private JavaScriptModulesConfig(List<JavaScriptModuleRegistration> modules) {
+    mModules = modules;
+  }
 
+  /*package*/ List<JavaScriptModuleRegistration> getModuleDefinitions() {
+    return mModules;
+  }
 
+  ...
+}
+```
 
+3、而在 ReactInstanceManagerImpl 的 createReactContext 方法中，还有这样一段代码：
 
+``` Java
+private ReactApplicationContext createReactContext(
+      JavaScriptExecutor jsExecutor,
+      JSBundleLoader jsBundleLoader)
+     ...
 
+     JavaScriptModulesConfig.Builder jsModulesBuilder = new JavaScriptModulesConfig.Builder();
+     JavaScriptModulesConfig javaScriptModulesConfig;
+    try {
+      javaScriptModulesConfig = jsModulesBuilder.build();
+    } finally {
+      ...
+    }
+     ...
+    CatalystInstanceImpl.Builder catalystInstanceBuilder = new CatalystInstanceImpl.Builder()
+        .setReactQueueConfigurationSpec(ReactQueueConfigurationSpec.createDefault())
+        .setJSExecutor(jsExecutor)
+        .setRegistry(nativeModuleRegistry)
+        // 敲黑板！
+        .setJSModulesConfig(javaScriptModulesConfig)
+        .setJSBundleLoader(jsBundleLoader)
+        .setNativeModuleCallExceptionHandler(exceptionHandler);
 
+    ...
 
+    CatalystInstance catalystInstance;
+    try {
+      catalystInstance = catalystInstanceBuilder.build();
+    } finally {
+      ...
+    }
+
+    ...
+}
+
+```
+
+可见，javaScriptModulesConfig 是用来构建 CatalystInstance 的。
+
+梳理下过程：
+RCTEventEmitter 组装在 CoreModulesPackage 中。
+CoreModulesPackage 会被添加到 JavaScriptModulesConfig 里。
+javaScriptModulesConfig 是用来构建 CatalystInstance 的。
+
+Continue～
+
+4、CatalystInstance 源码：
+
+``` Java
+// 构造函数
+
+public class CatalystInstanceImpl implements CatalystInstance {
+
+   ...
+
+     private CatalystInstanceImpl(
+      final ReactQueueConfigurationSpec ReactQueueConfigurationSpec,
+      final JavaScriptExecutor jsExecutor,
+      final NativeModuleRegistry registry,
+      // 刚才提到的 javaScriptModulesConfig
+      final JavaScriptModulesConfig jsModulesConfig,
+      final JSBundleLoader jsBundleLoader,
+      NativeModuleCallExceptionHandler nativeModuleCallExceptionHandler) {
+
+    ...
+
+    mJSModuleRegistry = new JavaScriptModuleRegistry(CatalystInstanceImpl.this, jsModulesConfig);
+
+    ...
+
+    try {
+      mBridge = mReactQueueConfiguration.getJSQueueThread().callOnQueue(
+          new Callable<ReactBridge>() {
+            @Override
+            public ReactBridge call() throws Exception {
+              ...
+              try {
+                return initializeBridge(jsExecutor, jsModulesConfig);
+              } finally {
+                  ...
+              }
+            }
+          }).get();
+    } catch (Exception t) {
+      throw new RuntimeException("Failed to initialize bridge", t);
+    }
+  }
+
+  ...
+
+}
+
+```
+
+javaScriptModulesConfig 在这里被用来初始化 JavaScriptModuleRegistry 了，Registry 也就是注册表。这部分内容，在后面一节会继续讨论。
+
+5、此外，CatalystInstanceImpl 中，还有一个方法 ReactBridge：
+
+``` Java
+ private ReactBridge initializeBridge(
+      JavaScriptExecutor jsExecutor,
+      JavaScriptModulesConfig jsModulesConfig) {
+    ...
+    ReactBridge bridge;
+    try {
+      bridge = new ReactBridge(
+          jsExecutor,
+          new NativeModulesReactCallback(),
+          mReactQueueConfiguration.getNativeModulesQueueThread());
+    } finally {
+       ...
+    }
+    ...
+    try {
+      // 敲黑板
+      bridge.setGlobalVariable(
+          "__fbBatchedBridgeConfig",
+          buildModulesConfigJSONProperty(mJavaRegistry, jsModulesConfig));
+      bridge.setGlobalVariable(
+          "__RCTProfileIsProfiling",
+          Systrace.isTracing(Systrace.TRACE_TAG_REACT_APPS) ? "true" : "false");
+    } finally {
+        ...
+    }
+
+    return bridge;
+  }
+```
+
+6、setGlobalVariable 方法又一次用到了 javaScriptModulesConfig，并且是通过调用方法 buildModulesConfigJSONProperty 来使用的。
+
+buildModulesConfigJSONProperty 方法源码：
+
+```Java
+ private String buildModulesConfigJSONProperty(
+      NativeModuleRegistry nativeModuleRegistry,
+      JavaScriptModulesConfig jsModulesConfig) {
+    JsonFactory jsonFactory = new JsonFactory();
+    StringWriter writer = new StringWriter();
+    try {
+      JsonGenerator jg = jsonFactory.createGenerator(writer);
+      jg.writeStartObject();
+      jg.writeFieldName("remoteModuleConfig");
+      nativeModuleRegistry.writeModuleDescriptions(jg);
+      jg.writeFieldName("localModulesConfig");
+      // 敲黑板
+      jsModulesConfig.writeModuleDescriptions(jg);
+      jg.writeEndObject();
+      jg.close();
+    } catch (IOException ioe) {
+      throw new RuntimeException("Unable to serialize JavaScript module declaration", ioe);
+    }
+    return writer.getBuffer().toString();
+  }
+```
+
+7、在这个方法里 jsModulesConfig 调用了 writeModuleDescriptions。这个方法最终返回了一个字符串。
+
+writeModuleDescriptions 这个 JavaScriptModulesConfig 的方法都做了什么呢？它遍历了所有 JavaScriptModule 的 public 方法，然后通过 methodID 标识作为 key 存入 JSON 生成器中，用来最终生成 JSON 字符串。
+
+再次梳理下全部过程：
+1、RCTEventEmitter 组装在 CoreModulesPackage 中。
+2、CoreModulesPackage 会被添加到 JavaScriptModulesConfig 里。
+3、javaScriptModulesConfig 是用来构建 CatalystInstance 的。
+4、CatalystInstance 的方法 ReactBridge 调用了 setGlobalVariable 来使用 javaScriptModulesConfig。
+5、buildModulesConfigJSONProperty 作为方法 setGlobalVariable 的参数，它的返回值是一个 JSON 字符串，内容为所有 JavaScriptModule 的 public 方法，methodID 标识作为 key。
+
+至此，组件 RCTEventEmitter（JavaScriptModule 的子类）的信息被生成 JSON 字符串，并预先保存到了 Bridge 中。
+
+### JavaScriptModule 组件的调用
+
+NativeModuleRegistry：
+
+``` Java
+/*package*/ class JavaScriptModuleRegistry {
+
+  private final HashMap<Class<? extends JavaScriptModule>, JavaScriptModule> mModuleInstances;
+
+  public JavaScriptModuleRegistry(CatalystInstanceImpl instance, JavaScriptModulesConfig config) {
+    mModuleInstances = new HashMap<>();
+    for (JavaScriptModuleRegistration registration : config.getModuleDefinitions()) {
+      Class<? extends JavaScriptModule> moduleInterface = registration.getModuleInterface();
+      // 敲黑板 -> 注意这里的 Proxy
+      JavaScriptModule interfaceProxy = (JavaScriptModule) Proxy.newProxyInstance(
+          moduleInterface.getClassLoader(),
+          new Class[]{moduleInterface},
+          new JavaScriptModuleInvocationHandler(instance, registration));
+
+      mModuleInstances.put(moduleInterface, interfaceProxy);
+    }
+  }
+
+  ...
+}
+```
+
+前面提到过：Java 中只有类的定义，也就是只有 Interface，而真正的实现，其实是在 JS 中完成的。但是，没有真正的实现，Java 又是如何调用的呢？答案是：动态代理，Proxy。
+
+>这里使用动态代理除了创建 JavaScriptModule 组件的实例化类外，还有一个重要的作用，即 JavaScriptModule 所有的方法调用都会被 invoke 拦截，这样就可以统一处理所有从 Java 端向 Javascript 端的通信请求。
+
+上面代码中，newProxyInstance 方法的参数 JavaScriptModuleInvocationHandler，就是动态代理的拦截类。
+
+于是，和 JS 的连接末端代码终于来了：
+
+```Java
+public class CatalystInstanceImpl implements CatalystInstance {
+
+   ...
+
+    private final ReactBridge mBridge;
+
+    void callFunction(
+      final int moduleId,
+      final int methodId,
+      final NativeArray arguments,
+      final String tracingName) {
+
+    ...
+
+    mReactQueueConfiguration.getJSQueueThread().runOnQueue(
+        new Runnable() {
+          @Override
+          public void run() {
+
+            ...
+
+            try {  
+             Assertions.assertNotNull(mBridge).callFunction(moduleId, methodId,arguments);
+            } finally {
+               ...
+            }
+          }
+        });
+  }
+
+   ...
+
+}
+```
+
+调用的方式：所有 Java 向 Javascript 的通信请求都是通过 ReactBridge.callFunction（去看 Bridge 层会发现，其实这是一个 c++ 的方法，因为 Java 想调用 JS 还是要通过 c++ 的啊）！参数就是一系列的 Id（moduleId, methodId），以及其他参数。
+
+## 2、Bridge 层
+
+这一层的实现使用了 C++。
+
+首先，解释下 JNI，因为 Java 不能直接调用 WebKit，需要通过 JNI，JNI 再调用WebKit。
+
+所以什么是 JNI?
+>JNI 是 Java Native Interface 的缩写。从 Java 1.1 开始，Java Native Interface (JNI)标准成为 java 平台的一部分，它允许 Java 代码和其他语言写的代码进行交互。
+>JNI 一开始是为了本地已编译语言，尤其是 C 和 C++ 而设计的，但是它并不妨碍你使用其他语言，只要调用约定受支持就可以了。
+
+下面继续正题。刚才说到了 ReactBridge.callFunction。
+
+```Java
+public class ReactBridge extends Countable {
+  static {
+    SoLoader.loadLibrary(REACT_NATIVE_LIB);
+  }
+
+  public native void callFunction(int moduleId, int methodId, NativeArray arguments);
+
+  public native void setGlobalVariable(String propertyName, String jsonEncodedArgument);
+}
+```
+
+看到了关键字 native，是 JNI，看来这里就是 Java 和 c++ 的交互部分了。
+
+于是，在 c++ 中，有同名方法 setGlobalVariable 和 callFunction：
+
+```C++
+namespace bridge {
+
+  static void setGlobalVariable(JNIEnv* env, jobject obj, jstring propName, jstring jsonValue) {
+    auto bridge = extractRefPtr<CountableBridge>(env, obj);
+    bridge->setGlobalVariable(fromJString(env, propName), fromJString(env, jsonValue));
+  }
+
+  static void callFunction(JNIEnv* env, jobject obj, JExecutorToken::jhybridobject jExecutorToken, jint moduleId, jint methodId,
+                         NativeArray::jhybridobject args, jstring tracingName) {
+    auto bridge = extractRefPtr<CountableBridge>(env, obj);
+    auto arguments = cthis(wrap_alias(args));
+    try {
+      bridge->callFunction(
+        cthis(wrap_alias(jExecutorToken))->getExecutorToken(wrap_alias(jExecutorToken)),
+        folly::to<std::string>(moduleId),
+        folly::to<std::string>(methodId),
+        std::move(arguments->array),
+        fromJString(env, tracingName)
+      );
+    } catch (...) {
+     translatePendingCppExceptionToJavaException();
+    }
+  }
+
+}
+```
+
+上面这两个方法，其实没有具体实现，又分别调用了 `bridge->setGlobalVariable` 和 `bridge->callFunction`，真正实现的代码位于文件 react/Bridge.cpp 中。
+
+```C++
+void Bridge::setGlobalVariable(const std::string& propName, const std::string& jsonValue) {
+  runOnExecutorQueue(*m_mainExecutorToken, [=] (JSExecutor* executor) {
+    executor->setGlobalVariable(propName, jsonValue);
+  });
+}
+```
+
+```C++
+void Bridge::callFunction(
+    ExecutorToken executorToken,
+    const std::string& moduleId,
+    const std::string& methodId,
+    const folly::dynamic& arguments,
+    const std::string& tracingName) {
+  #ifdef WITH_FBSYSTRACE
+  int systraceCookie = m_systraceCookie++;
+  ...
+  #endif
+
+  #ifdef WITH_FBSYSTRACE
+  runOnExecutorQueue(executorToken, [moduleId, methodId, arguments, tracingName, systraceCookie] (JSExecutor* executor) {
+  ...
+  #else
+  runOnExecutorQueue(executorToken, [moduleId, methodId, arguments, tracingName] (JSExecutor* executor) {
+  #endif
+    executor->callFunction(moduleId, methodId, arguments);
+  });
+}
+```
+
+注意到，这两个方法都调用了 runOnExecutorQueue，将任务放进队列里面等待被调用，回调函数都涉及到 JSExecutor。
+
+那么就来看 JSExecutor.cpp 文件吧。
+
+```C++
+void JSCExecutor::setGlobalVariable(const std::string& propName, const std::string& jsonValue) {
+  auto globalObject = JSContextGetGlobalObject(m_context);
+  String jsPropertyName(propName.c_str());
+
+  String jsValueJSON(jsonValue.c_str());
+  auto valueToInject = JSValueMakeFromJSONString(m_context, jsValueJSON);
+
+  JSObjectSetProperty(m_context, globalObject, jsPropertyName, valueToInject, 0, NULL);
+}
+```
+
+Java 层构造的 JavaScriptModule 信息 JSON 串（前文提到过的第五条：buildModulesConfigJSONProperty 作为方法 setGlobalVariable 的参数，它的返回值是一个 JSON 字符串，内容为所有 JavaScriptModule 的 public 方法，methodID 标识作为 key。），在 setGlobalVariable 被处理 -- 解析后存为一张映射表，然后在 callFunction 映射调用。
+
+接下来看 callFunction 的处理：
+
+callFunction 执行 executeJSCallWithJSC，而 executeJSCallWithJSC 里面将 methodName 和 jsonArgs 拼接成了 Javascript 执行语句，最后调用 jni/react/JSCHelpers.cpp 的 evaluateScript 的来执行这个语句，完成 Bridge 向 Javascript 的调用。
+
+给出 executeJSCallWithJSC 的代码：
+
+```C++
+static std::string executeJSCallWithJSC( // JSCHelpers.cpp 内方法
+    JSGlobalContextRef ctx,
+    const std::string& methodName,
+    const std::vector<folly::dynamic>& arguments) {
+
+  ...
+
+  // Evaluate script with JSC
+  folly::dynamic jsonArgs(arguments.begin(), arguments.end());
+  auto js = folly::to<folly::fbstring>(
+      "__fbBatchedBridge.", methodName, ".apply(null, ",
+      folly::toJson(jsonArgs), ")");
+  // 敲黑板
+  auto result = evaluateScript(ctx, String(js.c_str()), nullptr);
+  return Value(ctx, result).toJSONString();
+}
+```
+
+**总结 Bridge 层的调用过程：**
+OnLoad.cpp -> Bridge.cpp -> JSCExecutor.cpp -> JSCHelpers.cpp -> WebKit。
+
+补充一点：JNI_OnLoad() 函数在 System.loadLibrary 加载完 JNI 动态库后会自动调用。
+
+## 3、Javascript 层
+
+终于到了 JS 层。
+
+这一层消息的传递，实质上就是 Weikit 执行 Javascript 语句。调用流程是：
+Bridge -> WebKit -> Javascript。
+WebKit 中提供了许多与 Javascript 通信的 API，比如 evaluateScript、JSContextGetGlobalObject、JSObjectSetProperty 等等。
+
+### JavaScriptModule 映射
+
+这里很快就会讲到一个 "__fbBatchedBridgeConfig"，这个是我一开始看源码的时候一直想不通、找不到源头的一个变量～要疯。这个其实是从 JavaScriptModule 那边传过来的。
+
+转入正题吧。
+
+```C++
+void JSCExecutor::setGlobalVariable(const std::string& propName, const std::string& jsonValue){
+  auto globalObject = JSContextGetGlobalObject(m_context);
+  String jsPropertyName(propName.c_str());
+
+  String jsValueJSON(jsonValue.c_str());
+  auto valueToInject = JSValueMakeFromJSONString(m_context, jsValueJSON);
+
+  JSObjectSetProperty(m_context, globalObject, jsPropertyName, valueToInject, 0, NULL);
+}
+```
+
+在刚才的 jni/react/JSCExecutor.cpp 的 setGlobalVariable 方法中，调用了 JSContextGetGlobalObject。JSContextGetGlobalObject 其实是一个 WebKit 的方法，其目的是获取 Global 全局对象。
+setGlobalVariable 方法第一个参数 propName 是从 Java 层传递过来的，有两个可能的值：__fbBatchedBridgeConfig 和 __RCTProfileIsProfiling。
+
+获取了 global 全局对象，并获取了 jsonValue，就调用方法 JSObjectSetProperty，这个的作用就好像是
+
+`global.__fbBatchedBridgeConfig = jsonValue;`
+
+于是 javascript 接收到了关于 JavaScriptModule 的信息，将会生成一张映射表。
+
+具体代码位于 node_modules\react-native\Libraries\BatchedBridge\BatchedBridge.js。
+
+``` JavaScript
+const MessageQueue = require('MessageQueue');
+
+const BatchedBridge = new MessageQueue(
+  __fbBatchedBridgeConfig.remoteModuleConfig,
+  __fbBatchedBridgeConfig.localModulesConfig,
+);
+```
+
+MessageQueue：
+
+```JavaScript
+class MessageQueue {
+
+  constructor(remoteModules, localModules) {
+    ...
+
+    localModules && this._genLookupTables(
+      this._genModulesConfig(localModules),this._moduleTable, this._methodTable
+    );
+}
+```
+
+this._genLookupTables：
+
+```JavaScript
+_genLookupTables(modulesConfig, moduleTable, methodTable) {
+    modulesConfig.forEach((config, moduleID) => {
+      this._genLookup(config, moduleID, moduleTable, methodTable);
+    });
+  }
+
+  _genLookup(config, moduleID, moduleTable, methodTable) {
+    if (!config) {
+      return;
+    }
+
+    let moduleName, methods;
+    if (moduleHasConstants(config)) {
+      [moduleName, , methods] = config;
+    } else {
+      [moduleName, methods] = config;
+    }
+
+    moduleTable[moduleID] = moduleName;
+    methodTable[moduleID] = Object.assign({}, methods);
+  }
+```
+
+可见，在方法 _genLookup 里，最终生成了映射表 moduleTable，保存于 MessageQueue 类里。
+
+### callFunction 的调用
+
+就要连起来了，下面就来回顾一下 JSCExecutor.cpp 中的 callFunction 调用过程。
+
+这两段代码前文提到过：
+
+```C++
+void JSCExecutor::callFunction(const std::string& moduleId, const std::string& methodId, const folly::dynamic& arguments) {
+  // TODO:  Make this a first class function instead of evaling. #9317773
+  std::vector<folly::dynamic> call{
+    moduleId,
+    methodId,
+    std::move(arguments),
+  };
+  std::string calls = executeJSCallWithJSC(m_context, "callFunctionReturnFlushedQueue", std::move(call));
+  m_bridge->callNativeModules(*this, calls, true);
+}
+```
+
+```C++
+static std::string executeJSCallWithJSC(
+    JSGlobalContextRef ctx,
+    const std::string& methodName,
+    const std::vector<folly::dynamic>& arguments) {
+
+  ...
+
+  // Evaluate script with JSC
+  folly::dynamic jsonArgs(arguments.begin(), arguments.end());
+  auto js = folly::to<folly::fbstring>(
+      "__fbBatchedBridge.", methodName, ".apply(null, ",
+      folly::toJson(jsonArgs), ")");
+  auto result = evaluateScript(ctx, String(js.c_str()), nullptr);
+  return Value(ctx, result).toJSONString();
+}
+```
+
+executeJSCallWithJSC 中，`folly::dynamic jsonArgs` 这里是一个生成语句的代码，拼装成的 js 语句例如：
+
+`__fbBatchedBridge.callFunctionReturnFlushedQueue.apply(null, jsonArgs);`
+
+考虑到代码：
+
+```JavaScript
+const MessageQueue = require('MessageQueue');
+
+const BatchedBridge = new MessageQueue(
+  __fbBatchedBridgeConfig.remoteModuleConfig,
+  __fbBatchedBridgeConfig.localModulesConfig,
+);
+
+...
+
+// 敲黑板
+Object.defineProperty(global, '__fbBatchedBridge', { value: BatchedBridge });
+
+module.exports = BatchedBridge;
+```
+
+参照敲黑板部分的代码，
+`__fbBatchedBridge.callFunctionReturnFlushedQueue.apply(null, jsonArgs);` 也就相当于：
+`global.__fbBatchedBridge = new MessageQueue(...args);`
+
+callFunction 调用的也就成了：
+`MessageQueue.callFunctionReturnFlushedQueue.apply(null, module, method, args);`
+
+在 messageQueue 中，该方法：
+
+```JavaScript
+callFunctionReturnFlushedQueue(module, method, args) {
+    guard(() => {
+      // 敲黑板
+      this.__callFunction(module, method, args);
+      this.__callImmediates();
+    });
+
+    return this.flushedQueue();
+  }
+
+var guard = (fn) => {
+  try {
+    fn();
+  } catch (error) {
+    ErrorUtils.reportFatalError(error);
+  }
+};
+```
+
+this.__callFunction 方法：
+
+```JavaScript
+__callFunction(module, method, args) {
+    ...
+    if (isFinite(module)) {
+      // 映射表
+      method = this._methodTable[module][method];
+      module = this._moduleTable[module];
+    }
+    ...
+    var moduleMethods = this._callableModules[module];
+    invariant(
+      !!moduleMethods,
+      'Module %s is not a registered callable module.',
+      module
+    );
+
+    // 通信完成，大功告成！
+    moduleMethods[method].apply(moduleMethods, args);
+    ...
+  }
+```
+
+注意，所有的 Javascript 组件都是通过 registerCallableModule 来注册的，比如触摸事件 RCTEventEmitter.java 对应的组件 RCTEventEmitter.js。
+
+这两个文件中的方法，其实是可以一一对映的。
+
+最后，给出一个总结性的图：
+
+![RNIMG](imgs/RNIMG.png)
