@@ -113,7 +113,7 @@ JSObjectCallAsFunction(ctx, objFunc, NULL, 0, 0, NULL);
 
 ### JavaScript 调用 C++
 
-通过方法 JSObjectSetProperty 将在 c++ 中新建的 JavaScript 类对象注入到 JavaScript 的全局对象中，在 JS 中就可以使用了。
+通过方法 JSObjectSetProperty 将在 c++ 中新建的 JavaScript 类对象注入到 JavaScript 的全局对象中，在 JS 中就可以使用了。
 
 # 三、详述 Native 与 Javascript 通信
 
@@ -152,7 +152,7 @@ React-Native 实现了一些组件，比如按键、触摸等等，所有的组�
 
 ### JavaScriptModule 组件的注册
 
-这里，以一个触摸组件为栗子，看 JavaScriptModule 是如何注册组件并传递消息给 JS 的。
+这里，以一个触摸组件为栗子，看 JavaScriptModule 是如何注册组件并传递消息给 JS 的。
 
 该触摸组件的“类”为 RCTEventEmitter，可以发现它依旧是一个 interface 哈。
 
@@ -596,7 +596,7 @@ WebKit 中提供了许多与 Javascript 通信的 API，比如 evaluateScript、
 
 ### JavaScriptModule 映射
 
-这里很快就会讲到一个 "__fbBatchedBridgeConfig"，这个是我一开始看源码的时候一直想不通、找不到源头的一个变量～要疯。这个其实是从 JavaScriptModule 那边传过来的。
+这里很快就会讲到一个 "__fbBatchedBridgeConfig"，这个是我一开始看源码的时候一直想不通、找不到源头的一个变量～要疯。这个其实是从 JavaScriptModule 那边传过来的。
 
 转入正题吧。
 
@@ -614,7 +614,7 @@ void JSCExecutor::setGlobalVariable(const std::string& propName, const std::stri
 
 在刚才的 jni/react/JSCExecutor.cpp 的 setGlobalVariable 方法中，调用了 JSContextGetGlobalObject。JSContextGetGlobalObject 其实是一个 WebKit 的方法，其目的是获取 Global 全局对象。setGlobalVariable 方法第一个参数 propName 是从 Java 层传递过来的，有两个可能的值：__fbBatchedBridgeConfig 和 __RCTProfileIsProfiling。
 
-获取了 global 全局对象，并获取了 jsonValue，就调用方法 JSObjectSetProperty，这个的作用就好像
+获取了 global 全局对象，并获取了 jsonValue，就调用方法 JSObjectSetProperty，这个的作用就好像
 
 `global.__fbBatchedBridgeConfig = jsonValue;`
 
@@ -710,7 +710,7 @@ static std::string executeJSCallWithJSC(
 }
 ```
 
-executeJSCallWithJSC 中，`folly::dynamic jsonArgs` 这里是一个生成语句的代码，拼装成的 js 语句例如：
+executeJSCallWithJSC 中，`folly::dynamic jsonArgs` 这里是一个生成语句的代码，拼装成的 js 语句例如：
 
 `__fbBatchedBridge.callFunctionReturnFlushedQueue.apply(null, jsonArgs);`
 
@@ -787,7 +787,7 @@ __callFunction(module, method, args) {
 
 注意，所有的 Javascript 组件都是通过 registerCallableModule 来注册的，比如触摸事件 RCTEventEmitter.java 对应的组件 RCTEventEmitter.js。
 
-这两个文件中的方法，其实可以一一对映的。
+这两个文件中的方法，其实可以一一对映的。
 
 最后，给出一个总结性的图：
 
