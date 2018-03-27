@@ -45,6 +45,22 @@ JavascriptModuleRegistry 是 JS Module 映射表，NativeModuleRegistry 是 Java
 
 # 二、JS & Native // Java & C++ // JS & C++ 交互概述
 
+## 几个和交互相关的重要概念：
+
+JavaScriptModule：这是一个接口，JS Module都会继承此接口，它表示在 JS 层会有一个相同名字的 js 文件，该 js 文件实现了该接口定义的方法，JavaScriptModuleRegistry 会利用动态代理将这个接口生成代理类，并通过 C++ 传递给 JS 层，进而调用 JS 层的方法。
+
+JavaScriptModuleRegistration：用来描述 JavaScriptModule 的相关信息，它利用反射获取接口里定义的 Method。
+
+JavaScriptModuleRegistry：JS Module **注册表**，内部维护了一个 HashMap：HashMap<Class<? extends JavaScriptModule>, JavaScriptModuleRegistration> mModuleRegistrations，JavaScriptModuleRegistry 利用动态代理生成接口 JavaScriptModule 对应的代理类，再通过 C++ 传递到 JS 层，从而调用 JS 层的方法。
+
+
+NativeModule：是一个接口，实现了该接口则可以被 JS 层调用，我们在为 JS 层提供 Java API 时通常会继承 BaseJavaModule/ReactContextBaseJavaModule，这两个类就实现了 NativeModule 接口。
+
+ModuleHolder：NativeModule的一个Holder类，可以实现NativeModule的懒加载。
+
+NativeModuleRegistry：Java Module 注册表，内部持有 Map：Map<Class<? extends NativeModule>, ModuleHolder> mModules，NativeModuleRegistry 可以遍历并返回 Java Module 供调用者使用。
+
+
 ## JS & Native
 
 执行 Native 代码的抽象类是 ExecutorDelegate，执行 JS 代码的抽象类是 JSExecutor。
@@ -54,7 +70,7 @@ JavascriptModuleRegistry 是 JS Module 映射表，NativeModuleRegistry 是 Java
 
 ## Java & C++
 
-Java 调用 C/C++，需要用到 Java 中的 JNI。JNI 通过动态注册的方式注册 Native 函数。
+Java 调用 C/C++，需要用到 Java 中的 JNI（Java Native Interface）。JNI 通过动态注册的方式注册 Native 函数。
 
 >JNI 动态注册
 >动态注册允许你提供一个函数映射表，提供给虚拟机，这样虚拟机就可以根据函数映射表来调用相应的函数。
@@ -792,3 +808,43 @@ __callFunction(module, method, args) {
 最后，给出一个总结性的图：
 
 ![RNIMG](imgs/RNIMG.png)
+
+# 四、JS 的渲染流程
+
+总述：
+
+>1、React Native 将代码由 JSX 转化为 JS 组件，启动过程中利用 instantiateReactComponent 将 ReactElement 转化为复合组件 ReactCompositeComponent 与元组件 ReactNativeBaseComponent，利用 ReactReconciler 对他们进行渲染。
+
+React Native 代码通常都是 JSX 代码。JSX 其实是语法糖，实际运行的时候它还是会转换为真正的 js 代码。利用 babel，JSX 组件都会被转换为 ReactElement 组件，该组件定义在 ReactElement.js 文件中。
+
+>2、UIManager.js 利用 C++ 层的 Instance.cpp 将 UI 信息传递给 UIManagerModule.java，并利用 UIManagerModule.java 构建UI。
+
+UI 渲染主要通过 UIManager 来完成，UIManager 是一个 ReactModule，UIManager.js 里的操作都会对应到 UIManagerModule 里来。
+
+>3、UIManagerModule.java 接收到 UI 信息后，将 UI 的操作封装成对应的 Action，放在队列中等待执行。各种 UI 的操作，例如创建、销毁、更新等便在队列里完成，UI 最终得以渲染在屏幕上。
+
+在 UIManagerModule 这个类里被 **@ReactMethod** 注解标记的都是可以被 js 调用的方法。
+UIManagerModule 把功能委托给了 UIImplementation 来实现。
+
+## 几个关键函数
+
+### ReactNativeMount.renderComponent()
+
+该方法主要做了以下事情：
+
+1、将传入的 RectElement 使用相同的 TopLevelWrapper 进行包裹，生成 nextWrappedElement。
+2、检查之前的节点是否已经 mount 到目标节点上，如果有则进行比较处理，将上一步生成的 nextWrappedElement 传入 instantiateReactComponent(nextWrappedElement, false) 方法。
+3、将 mount 任务提交给回调 Queue，最终会调用 ReactReconciler.mountComponent()，ReactReconciler.mountComponent() 又会去调用 C++ 层 Instance::mountComponent() 方法。
+
+### instantiateReactComponent.instantiateReactComponent(node, shouldHaveDebugID)
+
+instantiateReactComponent(node, shouldHaveDebugID) 方法根据对象的 type 生成元组件或者复合组件。
+事实上，复合组件也是递归遍历其中的元组件，然后进行渲染。
+
+### UIManagerModule.createView（Java 方法）
+
+ReactShadowNode 用来描述 DOM 树的节点，它将 js 层传递过来的 UI 信息包装成一个 ReactShadowNode，调用 handleCreateView() 方法把 UI 的操作封装成一个 Action，放进队列中等到执行。
+
+### NativeViewHierarchyManager.createView()（Java 方法）
+
+该函数调用 ViewManager.createView() 创建 View，ViewManager.createView() 方法调用相应组件的构造函数构建 View 实例，并设置事件发射器，当前 View 发生的事件会通过发射器发送到JS层处理。
