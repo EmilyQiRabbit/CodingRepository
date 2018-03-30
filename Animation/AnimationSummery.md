@@ -259,7 +259,7 @@ React Motion 提供的 API
 
 ```JavaScript
 var button = document.querySelector('button');
-button.addEventListener('click', () => console.log(‘Clicked!'));
+button.addEventListener('click', () => console.log('Clicked!'));
 ```
 
 使用 RxJS 的话，创建一个 observable 来代替：
@@ -267,7 +267,7 @@ button.addEventListener('click', () => console.log(‘Clicked!'));
 ```JavaScript
 var button = document.querySelector('button');
 Rx.Observable.fromEvent(button, 'click')
-  .subscribe(() => console.log(‘Clicked!’));
+  .subscribe(() => console.log('Clicked!'));
 ```
 
 ##方法四：Animated
