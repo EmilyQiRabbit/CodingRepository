@@ -252,7 +252,7 @@ dll 就此实现了对 bundle 的拆分，实际上，开发模式下，bundle.j
 
 # Practice!
 
-[Coding...]()
+[Coding...](https://github.com/EmilyQiRabbit/CodingRepository/tree/master/Frameworks/WebpackConfig)
 
 [slide]
 
@@ -264,5 +264,121 @@ dll 就此实现了对 bundle 的拆分，实际上，开发模式下，bundle.j
 
 # 3、Node Service
 
+## 知识点啊知识点
 
+1、服务启动和基本设置
+
+2、pm2 和 Cluster
+
+
+[slide]
+
+# 1、服务启动和基本设置
+
+整理了一下我和喆的[大黄蜂-周报系统](https://github.com/EmilyQiRabbit/NodeCode/tree/master/WeeklyReport)，大家有兴趣可以搂一眼。
+
+And 整理后的项目去掉了 _Redux_，感觉很清爽。
+
+[slide]
+
+和单纯的前端 service 不同，此时的 Node 需要提供两方面的服务：
+
+**页面访问的应答 / 前端数据请求的应答**
+
+这两个方面的基础配置基本相同，但路由配置有所差别。
+
+[slide]
+
+# 依旧从 **npm start** 开始 👇
+
+```
+"start": "nodemon ./bin/www"
+```
+
+> What is nodemon? 
+
+> nodemon will watch the files in the directory in which nodemon was started, and if any **files change**, nodemon will automatically **restart** your node application.
+
+[slide]
+
+# www 
+
+```JavaScript
+const http = require('http'); // http 是 Node.js 模块
+const app = require('../server');
+
+const server = http.createServer(app);
+
+server.listen(config.port, '0.0.0.0');
+```
+
+在服务器中，0.0.0.0 指的是本机上的所有 IPV4 地址。
+
+例如，如果一个主机有两个IP地址，并且该主机上的一个服务监听的地址是 0.0.0.0，那么通过两个 ip 地址都能够访问该服务。 
+
+[slide]
+
+# Server / index.js
+
+该文件基于 Express 完成基础的配置
+
+```JavaScript
+const express = require('express');
+const app = express();
+```
+
+Express 框架建立在 node.js 的 http 模块上。
+
+index 中涉及到了两个重要的 express 方法：**app.use 和 app.set**。
+
+还涉及了几个模块和插件：path、[body-parser](https://github.com/expressjs/body-parser)等等
+
+[slide]
+
+# app.use
+
+use what? 中间件。
+
+它们会根据定义顺序依次调用。**因此，前序的 use 方法必须调用 next()，否则后面的方法将不会被执行。**
+
+---------
+
+Q：说好的 next 呢？！
+```JavaScript
+app.use(bodyParser.json({limit: '20mb'}));//设置前端post提交最大内容
+...
+app.use(cookieParser());
+```
+
+AnS：作为一个合格的插件插件，是自动包含 next 的！
+
+[slide]
+
+# app.set
+
+index 文件中，仅有一处涉及 set 方法：用来为前端页面设置模版。
+
+框架采用的 hbs，另外还有 ejs 等。
+
+```JavaScript
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'hbs');
+```
+
+设置后，服务会自动读取 views 下的 layout.hbs 作为模版 -- 前端页面渲染的基础。
+
+[slide]
+
+# [body-parser](https://github.com/expressjs/body-parser)
+
+body-parser 用来解析 http 请求
+
+其实，Express 框架是默认就包含了 body-parser 的，因此在框架代码中，也就是又设置了一下 {limit: '20mb'} 参数
+
+----------
+
+_歪楼_推荐大家可以看一看 **express** 的源码，我的心得是：
+
+用的插件比较多但是大多很基础，**原生 JS 出神入化。**
 
