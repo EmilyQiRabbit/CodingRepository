@@ -2,15 +2,30 @@ title: Frame Share
 speaker: Yuqi
 theme: moon
 date: 2018年4月
+describe: 
+
+<div style='display: none'>
+
+Still remember the VERY FIRST TIME I run that FRAME and heard you teach us about it.
+
+"比较成熟的框架，帮助快速的迭代开发..."
+
+Still remember that young girl looking up at you with great admiration, long dark hair, never made my nail.
+
+I LOVE that ME, also LOVE the changes I have decided to made.
+
+THANK YOU FOR ALL THESE DAYS IN BK.
+
+</div>
 
 [slide]
 
-# 挖一挖我们的框架代码
-<div style='margin-bottom: 15px'>🙊<span style='font-size: 16px'>本来是想借着分析我们的框架来分析前后端渲染的，结果不小心歪楼了～</span></div>
+# 分享一下我们的框架代码
+<div style='margin-bottom: 15px'>🙊<span style='font-size: 16px'>本来是想借着挖一挖框架来分析前后端渲染的，结果不小心歪楼了～</span></div>
 
-知识点好多，牛的不行～
+实在是知识点好多，🐮牛的不行～
 
-Let's START
+**Let's START**
 
 [slide]
 
@@ -123,7 +138,7 @@ devServer: {
 ## <div style='color: #db4c3f'>在 contentBase 配置中，用到了 Path 模块：</div>
 
 * path.resolve() 方法用于将相对路径转为绝对路径。
-* __dirname：当前文件的绝对路径
+* __dirname：当前文件的绝对路径（根目录）
 
 [slide]
 
@@ -155,6 +170,15 @@ const htmlArr = html.map( ( item, i ) => {
 
 HtmlWebpackPlugin 是用来帮助生成 html 文件的插件，配置在 webpackConfig 的 plugins 里。
 服务运行后，会自动生成一个引用了 webpack 输出的 bundle.js 的 html。
+
+[slide]
+
+# Webpack 的工作流
+
+* 从 **context** 文件夹开始（框架内没有配置，那就默认为 ''）
+* 查找 **entry** 对应的文件
+* (找到文件之后) 读取文件内容. 每当遇到 import (ES6) 或者 require() (Node) 依赖项时, 它会解析这些代码, 并且打包到最终构建里. 接着它会不断递归搜索实际需要的依赖项, 直到它到达了“树”的底部
+* 递归完所有依赖之后, Webpack 会将所有东西打包到 **output.path** 对应的目录, 并将 output.filename 的值作为最终的资源名 ([name] 表示使用 entry 项的 key)
 
 [slide style = 'line-height: 50px']
 
@@ -235,6 +259,8 @@ dll 就此实现了对 bundle 的拆分，实际上，开发模式下，bundle.j
 
 ### Babel 是一个 JavaScript 编译器。它能通过语法转换器支持最新版本的 JavaScript，这就允许你立刻使用新语法🤩，无需等待浏览器支持。
 
+-----------
+
 > 框架里在 package.json 中的 dependencies 已经关联好了 babel，接下来还需要添加一个 .babelrc 文件稍作配置，我们就可以愉快的使用 ES6 了。
 
 [slide]
@@ -264,7 +290,7 @@ dll 就此实现了对 bundle 的拆分，实际上，开发模式下，bundle.j
 
 # 3、Node Service
 
-## 知识点啊知识点
+## 知识点
 
 1、服务启动和基本设置
 
@@ -331,7 +357,7 @@ Express 框架建立在 node.js 的 http 模块上。
 
 index 中涉及到了两个重要的 express 方法：**app.use 和 app.set**。
 
-还涉及了几个模块和插件：path、[body-parser](https://github.com/expressjs/body-parser)等等
+还涉及了几个模块和插件：path、[body-parser](https://github.com/expressjs/body-parser)、webpack等等。
 
 [slide]
 
@@ -343,14 +369,15 @@ use what? 中间件。
 
 ---------
 
-Q：说好的 next 呢？！
+Q：next 呢？！
+
 ```JavaScript
 app.use(bodyParser.json({limit: '20mb'}));//设置前端post提交最大内容
 ...
 app.use(cookieParser());
 ```
 
-AnS：作为一个合格的插件插件，是自动包含 next 的！
+AnS：插件已配置 next ！
 
 [slide]
 
@@ -358,15 +385,47 @@ AnS：作为一个合格的插件插件，是自动包含 next 的！
 
 index 文件中，仅有一处涉及 set 方法：用来为前端页面设置模版。
 
-框架采用的 hbs，另外还有 ejs 等。
+本框架选用了 hbs，另外还有 ejs 等等。
 
 ```JavaScript
-// view engine setup
+// view engine setup 
 app.set('views', path.join(__dirname, 'views'));
+// __dirname 指向根目录
 app.set('view engine', 'hbs');
 ```
 
-设置后，服务会自动读取 views 下的 layout.hbs 作为模版 -- 前端页面渲染的基础。
+设置后，服务会自动读取 views 下的 layout.hbs（并没有设置，layout 是默认选项） 作为模版 -- 前端页面渲染的基础。
+
+[slide]
+
+# webpack
+
+在刚才那种纯前端页面的开发模式中，我们使用的是 webpack 提供的 webpack-dev-server 和 config 中 devServer 的配置完成 webpack 的配置。
+
+而在 node 提供服务时，则使用中间件来完成 webpack 的配置。
+
+```JavaScript
+const webpackConfig = require('../webpack.build.babel'); // 返回一个配置文件
+const webpack = require('webpack');
+const compiler = webpack(webpackConfig);
+
+app.use(require('webpack-dev-middleware')(compiler, {
+  noInfo: true, //如果设置该参数为 true，则不打印输出信息
+  cache: true, //开启缓存，增量编译
+  stats: {
+    colors: true, //打印日志显示颜色
+    reasons: true //打印相关被引入的模块
+  },
+  publicPath: webpackConfig.output.publicPath
+}));
+
+//热部署，自动刷新，需要结合 webpack.config.dev.babel 中的定义
+app.use(require('webpack-hot-middleware')(compiler, {
+  log: logger.info,
+  path: '/__webpack_hmr',
+  heartbeat: 10 * 1000
+}));
+```
 
 [slide]
 
@@ -374,7 +433,7 @@ app.set('view engine', 'hbs');
 
 body-parser 用来解析 http 请求
 
-其实，Express 框架是默认就包含了 body-parser 的，因此在框架代码中，也就是又设置了一下 {limit: '20mb'} 参数
+其实，Express 框架是默认就包含了 body-parser 的，因此在框架代码中，就是又设置了一下 {limit: '20mb'} 参数
 
 ----------
 
@@ -382,3 +441,89 @@ _歪楼_推荐大家可以看一看 **express** 的源码，我的心得是：
 
 用的插件比较多但是大多很基础，**原生 JS 出神入化。**
 
+[slide]
+
+# 下一步：在 boot.js 配置路由
+
+## 1、路由配置
+
+### （1）http 请求路由配置
+
+### （2）用户页面路由配置
+
+---------
+
+## 2、权限检查
+
+[slide]
+
+# http 请求路由配置
+
+``` JavaScript
+const Admin = require('./routes/page/admin');
+const Home = require('./routes/page/index');
+
+module.exports = function(app) {
+  addRoute(app); // http 请求路由配置
+  app.use('/admin', Admin); // 页面路由
+  app.use('/', Home); // 页面路由
+}
+```
+
+[slide]
+
+# addRoute 方法
+
+```JavaScript
+const fs = require('fs');
+...
+const apiDir = '/routes/api/';
+const apiRootPath = path.join(__dirname, apiDir);
+fs.readdirSync(routePath)
+...
+const obj = require(`.${routeName}`);
+app.use(routeName.replace(/\/routes/, ''), obj);
+```
+
+[slide]
+
+# Admin：require('./routes/page/admin')
+
+这里就是用户页面渲染的部分了。
+
+Node 只提供了公用的模版，前台的路由配置用的是我们都熟悉的 React Router。
+
+```JavaScript
+router.get('*', (req, res, next) => {
+  const ret = getRenderData('adminPages');
+  res.render('adminPages', ret);
+});
+```
+
+.....哇这里有点复杂 @-@，直接去看代码吧～
+
+**重点是**
+
+1、res.render 的第一个参数对应了 views 中的 .hbs 文件
+
+2、getRenderData 的参数 adminPages 即 moduleName 对应了 webpack config entry 入口文件的 key
+
+[slide]
+
+# When it runs...
+
+node 通过模版提供**基础的页面骨架**，包括 html body 等等。然后 webpack 会将需要的文件打包好，生成一个 js 文件塞到这个框架里。
+
+---------
+
+该文件会被发送到客户端，在浏览器环境下运行并完成渲染：前端渲染。
+
+[slide]
+
+# 今天就酱吧
+
+其实还有很多东西没有细讲，大家在后续使用的过程中，可以不断学习～
+
+[slide]
+
+# 蟹蟹大家！
