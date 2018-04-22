@@ -20,16 +20,18 @@ THANK YOU FOR ALL THESE DAYS IN BK.
 
 [slide]
 
-# 分享一下我们的框架代码
-<div style='margin-bottom: 15px'>🙊<span style='font-size: 16px'>本来是想借着挖一挖框架来分析前后端渲染的，结果不小心歪楼了～</span></div>
+# 🌸 我们的开发框架 🌸
+<div style='margin-bottom: 15px'>🙉🙊<span style='font-size: 16px'>本来是想借着挖一挖框架来分析前后端渲染的，结果不小心歪楼了～</span></div>
 
-实在是知识点好多，🐮牛的不行～
+实在是知识点好多💯
+
+-------
 
 **Let's START**
 
 [slide]
 
-# ...🧤Just Green Hand，随时指正...
+# ...🧤Green Hand，随时指正...
 
 [slide]
 
@@ -37,32 +39,35 @@ THANK YOU FOR ALL THESE DAYS IN BK.
 
 * 最重要的，一定要运行起来！
 * 从最简单的模版开始，试着变换栗子中的文件名可以帮助你发现问题。
+* 主流框架的源码推荐看。
+* 原生 JS 很有用。
 
 [slide]
 
 # 目录
 
-## 1、Webpack dev
+## 1、Webpack server(dev 模式)
 ## 2、Node Service
-## 3、Alpha Node
 
 [slide]
 
-# 1、Webpack dev
+# 1、Webpack server(dev 模式)
 
-这部分的讲解将会基于单纯的前端服务，比如 bk-static-admin-xxx。
+这部分仅包含前端页面渲染，不包含 node 服务。
+
+例如项目：bk-static-admin-xxx。
 
 [slide]
 
 # 什么是 webpack ? 
 
 <div style='text-align: left; line-height: 50px'>
-Webpack 像是一个模块打包机，将你的各种不同的文件（JS, TS, LESS, SESS...）转换和打包为合适的格式供浏览器使用。
+Webpack 是一个模块打包机，将你的各种不同的文件（JS(ES6), TS, LESS, SESS...）解析、转换和打包为合适的格式，供浏览器使用。
 </div>
 
-<div style='text-align: left; line-height: 50px'>
-就从启动服务开始说起。👈 我们首先会做什么呢？
-</div>
+---------
+
+从启动服务开始说起 👈 首先会做什么呢？
 
 [slide]
 
@@ -72,7 +77,7 @@ Webpack 像是一个模块打包机，将你的各种不同的文件（JS, TS, L
 这个命令将会执行 package.json 内的 scripts.start 的命令
 
 ```bash
-cross-env NODE_ENV=development webpack-dev-server --progress --colors --hot --inline
+cross-env NODE_ENV=development webpack-dev-server --progress --color --info
 ```
 
 <div style='color: #db4c3f; margin: 15px 0'>划重点：</div>
@@ -80,13 +85,19 @@ cross-env NODE_ENV=development webpack-dev-server --progress --colors --hot --in
 
 <div style='color: #db4c3f; margin: 15px 0'>另外，后面的几个 -- options：</div>
 
-主要是辅助功能，了解一下.....
+其实主要是辅助功能，了解一下。
 
+需要注意的是，这几个都是 **CLI ONLY**
+
+<div style='font-size:22px; line-height: 35px; text-align: left; color: #ccc'>
 * color：使用颜色，有利于找出关键信息，只能在控制台中使用
-* hot：启用热替换属性
+</div>
+<div style='font-size:22px; line-height: 35px; text-align: left; color: #ccc'>
 * info：在控制台输出信息，默认输出
-* open：运行命令之后自动打开浏览器
+</div>
+<div style='font-size:22px; line-height: 35px; text-align: left; color: #ccc'>
 * progress：将运行进度输出到控制台，只可以使用控制台
+</div>
 
 [slide style = 'line-height: 50px']
 
@@ -94,12 +105,10 @@ cross-env NODE_ENV=development webpack-dev-server --progress --colors --hot --in
 devServer: {
   inline: true,
   compress: true,
-  contentBase: path.resolve(appPath, 'public'),
-  // 静态文件的文件夹地址，可以发现和 webpack config output 的 path 地址是一致的
+  contentBase: path.resolve(appPath, 'public'),// 和 webpack config output 的 path 地址是一致的
   hot: true,
   port: 9090,
-  publicPath: `${context}/`,
-  // 可以发现它则和 output 的 publicPath 地址一致
+  publicPath: `${context}/`, // 可以发现它则和 output 的 publicPath 地址一致
   disableHostCheck: true, // To Resolve the problem: 'Invalid Host Header'
   historyApiFallback: {
     rewrites: [
@@ -108,11 +117,6 @@ devServer: {
   },
   proxy: {
     '/query': {
-      target: 'http://z.rabbit.com:8888',
-      auth: false,
-      changeOrigin: true
-    },
-    '/upload': {
       target: 'http://z.rabbit.com:8888',
       auth: false,
       changeOrigin: true
@@ -129,16 +133,21 @@ devServer: {
 # 几个关键配置的解析
 
 >* compress：对所有服务启用 gzip 压缩
->* contentBase：静态文件的文件夹地址，即：本地服务器所加载的页面所在的目录
->* historyApiFallback：提供重定向 -- 当使用 HTML5 History API 时，任意的 404 响应都可能需要被替代为 index.html。如果使用 rewrites，此行为可进一步地控制 -- 指定的请求应该被指定的页面替代 -- 如果路径能匹配 from，则指向 to 指定的入口html文件。
->* publicPath：将用于确定应该从哪里提供 bundle，此路径下的打包文件可在浏览器中访问。
->* 这几个应该比较熟悉了：
+>* contentBase：告诉服务器，从哪里提供内容。因此，它和 webpack config output 的 path 地址是一致的。
+>* historyApiFallback：提供重定向响应 404 -- 如果使用 rewrites，此行为可进一步地控制 -- 指定的请求应该被指定的页面替代。
+>* publicPath：静态文件地址，此路径下的打包文件可在浏览器中访问👇
+
+假设服务器运行在 http://localhost:8080 并且 output.filename 被设置为 bundle.js。默认 publicPath 是 "/"，所以你的包(bundle)可以通过 http://localhost:8080/bundle.js 访问。
+
+>* 剩下的几个应该比较熟悉了：
 >* hot：热更新 / port：端口 / proxy：代理
 
-## <div style='color: #db4c3f'>在 contentBase 配置中，用到了 Path 模块：</div>
+[slide]
+
+## 在 contentBase 配置中，用到了 **Path** 模块
 
 * path.resolve() 方法用于将相对路径转为绝对路径。
-* __dirname：当前文件的绝对路径（根目录）
+* \__dirname：当前文件的绝对路径。等同于：path.dirname(__filename)
 
 [slide]
 
@@ -282,13 +291,7 @@ dll 就此实现了对 bundle 的拆分，实际上，开发模式下，bundle.j
 
 [slide]
 
-# 2、Webpack prod
-
-
-
-[slide]
-
-# 3、Node Service
+# 2、Node Service
 
 ## 知识点
 
@@ -522,7 +525,9 @@ node 通过模版提供**基础的页面骨架**，包括 html body 等等。然
 
 # 今天就酱吧
 
-其实还有很多东西没有细讲，大家在后续使用的过程中，可以不断学习～
+其实还有很多东西没有细讲，比如 webpack 的 loader，还有 node 中涉及的加解密等等。
+
+大家在后续使用的过程中，可以不断学习～
 
 [slide]
 
