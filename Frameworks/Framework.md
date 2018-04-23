@@ -4,26 +4,12 @@ theme: moon
 date: 2018年4月
 describe: 
 
-<div style='display: none'>
-
-Still remember the VERY FIRST TIME I run that FRAME and heard you teach us about it.
-
-"比较成熟的框架，帮助快速的迭代开发..."
-
-Still remember that young girl looking up at you with great admiration, long dark hair, never made my nail.
-
-I LOVE that ME, also LOVE the changes I have decided to made.
-
-THANK YOU FOR ALL THESE DAYS IN BK.
-
-</div>
-
 [slide]
 
-# 🌸 我们的开发框架 🌸
-<div style='margin-bottom: 15px'>🙉🙊<span style='font-size: 16px'>本来是想借着挖一挖框架来分析前后端渲染的，结果不小心歪楼了～</span></div>
+# 我们的开发框架 🎉
+<div style='margin-bottom: 15px'>🙊<span style='font-size: 16px'>本来是想借着挖一挖框架来分析前后端渲染的，结果不小心歪楼了～</span></div>
 
-实在是知识点好多💯
+知识点好多💯
 
 -------
 
@@ -59,20 +45,13 @@ THANK YOU FOR ALL THESE DAYS IN BK.
 
 [slide]
 
-# 什么是 webpack ? 
+# 从启动服务开始说起 👈 
 
-<div style='text-align: left; line-height: 50px'>
-Webpack 是一个模块打包机，将你的各种不同的文件（JS(ES6), TS, LESS, SESS...）解析、转换和打包为合适的格式，供浏览器使用。
-</div>
-
----------
-
-从启动服务开始说起 👈 首先会做什么呢？
+首先会做什么呢？
 
 [slide]
 
 # 嗯 npm start
-
 
 这个命令将会执行 package.json 内的 scripts.start 的命令
 
@@ -108,7 +87,7 @@ devServer: {
   contentBase: path.resolve(appPath, 'public'),// 和 webpack config output 的 path 地址是一致的
   hot: true,
   port: 9090,
-  publicPath: `${context}/`, // 可以发现它则和 output 的 publicPath 地址一致
+  publicPath: `${context}/`,
   disableHostCheck: true, // To Resolve the problem: 'Invalid Host Header'
   historyApiFallback: {
     rewrites: [
@@ -133,7 +112,7 @@ devServer: {
 # 几个关键配置的解析
 
 >* compress：对所有服务启用 gzip 压缩
->* contentBase：告诉服务器，从哪里提供内容。因此，它和 webpack config output 的 path 地址是一致的。
+>* contentBase：告诉服务，从哪里提供内容。因此，它和 webpack config output 的 path 地址是一致的。
 >* historyApiFallback：提供重定向响应 404 -- 如果使用 rewrites，此行为可进一步地控制 -- 指定的请求应该被指定的页面替代。
 >* publicPath：静态文件地址，此路径下的打包文件可在浏览器中访问👇
 
@@ -189,27 +168,140 @@ HtmlWebpackPlugin 是用来帮助生成 html 文件的插件，配置在 webpack
 * (找到文件之后) 读取文件内容. 每当遇到 import (ES6) 或者 require() (Node) 依赖项时, 它会解析这些代码, 并且打包到最终构建里. 接着它会不断递归搜索实际需要的依赖项, 直到它到达了“树”的底部
 * 递归完所有依赖之后, Webpack 会将所有东西打包到 **output.path** 对应的目录, 并将 output.filename 的值作为最终的资源名 ([name] 表示使用 entry 项的 key)
 
-[slide style = 'line-height: 50px']
+[slide]
 
-# bundle 和 dll
+# 什么是 webpack ? 
 
-<div style='text-align: left'>
-
-<div style='color: #db4c3f'>
-  Origin Q：template 中，引入 script 的 src 是 '/cached/vendor.dll.js'。output 的 filename 却是 bundle.js？[黑人问号脸?]
+<div style='text-align: left; line-height: 50px; color: #db4c3f'>
+Webpack 是一个模块打包机，将你的各种不同的文件（JS(ES6), TS, LESS, SESS...）解析、转换和打包，供浏览器使用。
 </div>
 
-A：这里涉及了 DLLPlugin 和 DLLReferencePlugin，它萌用某种方法实现了拆分 bundles，大大提升了构建的速度。
-* 相关的配置需要参考：
+**一个关于 webpack 的简单栗子**
+
+[slide]
+
+配置方法
+```JavaScript
+// webpack.config.js
+module.exports = {
+  entry:'./index.js',
+  output:{
+    filename:'bundle.js'
+  }
+};
+```
+
+[slide]
+
+```JavaScript
+/******/ (function(modules) { // webpackBootstrap
+/******/     // The module cache
+/******/     var installedModules = {};
+/******/     // The require function
+/******/     function __webpack_require__(moduleId) {
+/******/         // Check if module is in cache
+/******/         if(installedModules[moduleId])
+/******/             return installedModules[moduleId].exports;
+/******/         // Create a new module (and put it into the cache)
+/******/         var module = installedModules[moduleId] = {
+/******/             exports: {},
+/******/             id: moduleId,
+/******/             loaded: false
+/******/         };
+/******/         // Execute the module function
+/******/         modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/         // Flag the module as loaded
+/******/         module.loaded = true;
+/******/         // Return the exports of the module
+/******/         return module.exports;
+/******/     }
+/******/     // expose the modules object (__webpack_modules__)
+/******/     __webpack_require__.m = modules;
+/******/     // expose the module cache
+/******/     __webpack_require__.c = installedModules;
+/******/     // __webpack_public_path__
+/******/     __webpack_require__.p = "";
+/******/     // Load entry module and return exports
+/******/     return __webpack_require__(0);
+/******/ })(...)
+```
+
+[slide]
+
+```JavaScript
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ function(module, exports, __webpack_require__) {
+    /*
+      打印文本的index模块
+     */
+    var text = __webpack_require__(1);
+    console.log(text);
+/***/ },
+/* 1 */
+/***/ function(module, exports) {
+    /*
+      生成文本的Hello world模块
+     */
+    module.exports = 'Hello world!';
+/***/ }
+/******/ ]);
+```
+
+[slide style = 'line-height: 50px']
+
+# dll
+
+<div style='color: #db4c3f'>
+.hbs 中引入的 script 的 src 是 '/cached/vendor.dll.js'
+</div>
+<div style='color: #db4c3f'>
+vendor.dll.js 是什么？
+</div>
+
+--------
+
+我们注意到，在 config 中：
+
+```JavaScript
+entry: {
+  vendor: [
+    'react',
+    'react-dom',
+    'react-router',
+    'immutable',
+    'isomorphic-fetch',
+    'fetch-ie8'
+  ],
+  [`${moduleName}`]: ['./frontPage/pages/index.js']
+}
+```
+
+但是在 dev.bable.js 文件中：
+
+```JavaScript
+const entry = options.entry;
+delete entry.vendor;
+```
+
+[slide]
+
+# dll +1
+
+这里涉及 DLLPlugin 和 DLLReferencePlugin，他们拆分了 bundle
+
+相关的配置参考：
 * webpack.DllPlugin & webpack.DllReferencePlugin
 * 在我们的项目中，配置在了 webpack.config.dll.babel.js 中
 
-🙋推荐参考链接：[Optimizing Webpack](http://engineering.invisionapp.com/post/optimizing-webpack/)
-</div>
+-----
+
+🙋 配置方法推荐：[Optimizing Webpack](http://engineering.invisionapp.com/post/optimizing-webpack/)
 
 [slide style = 'line-height: 50px']
 
-# bundle 和 dll -- Page +1
+# dll +1
 
 ``` JavaScript
 // webpack.config.dll.babel.js 中
@@ -250,7 +342,7 @@ webpackConfig.plugins.push(
 
 [slide style = 'line-height: 50px']
 
-# bundle 和 dll -- Page +2
+# dll +1
 
 <div style='text-align: left'>
 最后，还记得 npm run dll 吗？执行命令就在 package.json script 中
@@ -259,7 +351,7 @@ webpackConfig.plugins.push(
 dll: cross-env NODE_ENV=development webpack --progress --colors --config webpack.config.dll.babel.js,
 ```
 <div style='text-align: left'>
-dll 就此实现了对 bundle 的拆分，实际上，开发模式下，bundle.js 虽然没有被保存，却是存在于服务的内存中的。
+dll 就实现了对 bundle 的拆分。另外，开发模式下，bundle.js 没有被保存，但是它存在于服务的内存中的。
 </div>
 
 [slide]
@@ -280,8 +372,9 @@ dll 就此实现了对 bundle 的拆分，实际上，开发模式下，bundle.j
 * 2、与 webpack-dev-server 相关的 devServer 的配置
 * 3、webpack config 的 entry 和 output
 * 4、生成 html 相关插件
-* 5、bundle 和 dll：DLLPlugin 和 DLLReferencePlugin 两个插件
-* 6、Babel
+* 5、一个简单的 webpack 栗子
+* 6、bundle 和 dll：DLLPlugin 和 DLLReferencePlugin 两个插件
+* 7、Babel
 
 [slide]
 
@@ -582,3 +675,17 @@ if (cluster.isMaster) {
 [slide]
 
 # 蟹蟹大家！
+
+<div style='display: none'>
+
+Still remember the VERY FIRST TIME I run that FRAME and heard you teach us about it.
+
+"比较成熟的框架，帮助快速的迭代开发..."
+
+Still remember that young girl looking up at you with great admiration, long dark hair, never made my nail.
+
+I LOVE that ME, also LOVE the changes I have decided to made.
+
+THANK YOU FOR ALL THESE DAYS IN BK.
+
+</div>
