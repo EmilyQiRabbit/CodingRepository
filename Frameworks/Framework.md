@@ -523,9 +523,59 @@ node 通过模版提供**基础的页面骨架**，包括 html body 等等。然
 
 [slide]
 
+# PM2
+
+基于 Cluster 的 Node 的进程管理工具。
+
+[slide]
+
+# 简单看一个 Cluster 的例子：
+
+```JavaScript
+// cluster 
+var cluster = require('cluster'); // 内置模块
+var numCPUs = require('os').cpus().length; // 获取 CPU 的个数
+
+if (cluster.isMaster) {
+  for (var i = 0; i < numCPUs; i++) {
+      cluster.fork();
+  }
+} else {
+  require("./app.js");
+}
+
+/*
+ * 多进程运行涉及的父子进程通信，子进程管理，以及负载均衡等问题，这些特性 cluster 都帮你实现了。
+ * 
+ * cluster的负载均衡：
+ * Node.js v0.11.2+ 的 cluster 模块使用了 round-robin 调度算法做负载均衡，
+ * 新连接由主进程接受，然后由它选择一个可用的 worker 把连接交出去，说白了就是轮转法。
+ * 算法很简单，但据官方说法，实测很高效。
+ * 
+ * pm2 是一个现网进程管理的工具，可以做到不间断重启、负载均衡、集群管理等。
+ * 利用 pm2 可以做到 no code but just config 实现应用的 cluster。
+ * 
+ * 参考链接：
+ * 解读 Node.js 的 cluster 模块：http://www.alloyteam.com/2015/08/nodejs-cluster-tutorial/
+ * 
+*/
+```
+
+[slide]
+
+# 框架中的 PM2
+
+框架中的 PM2 相关的配置在 bin/run.sh 中，而启动的方式则在 shell 项目中。利用 jenkins 的 配置-构建 中的代码启动运行。
+
+看一下 bin/run.sh 就会发现其中的的代码非常简洁，可读性也很高。这也是 pm2 的特点：
+
+> Simple and efficient process management (start/stop/restart/delete/show/monit)
+
+[slide]
+
 # 今天就酱吧
 
-其实还有很多东西没有细讲，比如 webpack 的 loader，还有 node 中涉及的加解密等等。
+其实还有很多东西没有细讲，比如 webpack 的 loader，还有 node 中涉及的加解密，还有 PM2 其实也有很多可以说等等。
 
 大家在后续使用的过程中，可以不断学习～
 
