@@ -25,8 +25,8 @@ describe:
 
 * 最重要的，一定要运行起来！
 * 从最简单的模版开始，试着变换栗子中的文件名可以帮助你发现问题。
-* 主流框架的源码推荐看。
-* 原生 JS 很有用。
+* 主流框架的源码可以看看。
+* 会涉及很多原生 JS 基础知识点。
 
 [slide]
 
@@ -47,7 +47,7 @@ describe:
 
 # 从启动服务开始说起 👈 
 
-首先会做什么呢？
+首先要做什么呢？
 
 [slide]
 
@@ -64,7 +64,7 @@ cross-env NODE_ENV=development webpack-dev-server --progress --color --info
 
 <div style='color: #db4c3f; margin: 15px 0'>另外，后面的几个 -- options：</div>
 
-其实主要是辅助功能，了解一下。
+辅助功能，了解一下。
 
 需要注意的是，这几个都是 **CLI ONLY**
 
@@ -156,7 +156,7 @@ const htmlArr = html.map( ( item, i ) => {
 } )
 ```
 
-HtmlWebpackPlugin 是用来帮助生成 html 文件的插件，配置在 webpackConfig 的 plugins 里。
+插件 HtmlWebpackPlugin 用来帮助生成 html 文件，配置在 webpackConfig 的 plugins 里。
 服务运行后，会自动生成一个引用了 webpack 输出的 bundle.js 的 html。
 
 [slide]
@@ -173,7 +173,7 @@ HtmlWebpackPlugin 是用来帮助生成 html 文件的插件，配置在 webpack
 # 什么是 webpack ? 
 
 <div style='text-align: left; line-height: 50px; color: #db4c3f'>
-Webpack 是一个模块打包机，将你的各种不同的文件（JS(ES6), TS, LESS, SESS...）解析、转换和打包，供浏览器使用。
+Webpack 是一个模块打包机，将你的各种不同的文件（JS(ES6), TS, LESS, SESS...等等浏览器可能无法运行的文件）解析、转换和打包，供浏览器使用。
 </div>
 
 **一个关于 webpack 的简单栗子**
@@ -371,8 +371,8 @@ dll 就实现了对 bundle 的拆分。另外，开发模式下，bundle.js 没�
 * 1、npm start 将执行 webpack-dev-server，在本地启动一个服务
 * 2、与 webpack-dev-server 相关的 devServer 的配置
 * 3、webpack config 的 entry 和 output
-* 4、生成 html 相关插件
-* 5、一个简单的 webpack 栗子
+* 4、生成 html 的插件 HtmlWebpackPlugin
+* 5、一个简单的 webpack 栗子 👉[一篇超详细的文章](https://juejin.im/post/5ad75bf6f265da5059168b1d)
 * 6、bundle 和 dll：DLLPlugin 和 DLLReferencePlugin 两个插件
 * 7、Babel
 
@@ -533,9 +533,9 @@ body-parser 用来解析 http 请求
 
 ----------
 
-_歪楼_推荐大家可以看一看 **express** 的源码，我的心得是：
+_歪楼_推荐大家可以看一看 **express** 的源码，心得是：
 
-用的插件比较多但是大多很基础，**原生 JS 出神入化。**
+用的插件比较多但是大多很基础，**原生 JS 很重要。**
 
 [slide]
 
@@ -668,24 +668,10 @@ if (cluster.isMaster) {
 
 # 今天就酱吧
 
-其实还有很多东西没有细讲，比如 webpack 的 loader，还有 node 中涉及的加解密，还有 PM2 其实也有很多可以说等等。
+其实还有很多东西没有细讲，比如 webpack 的 loader，还有 node 中涉及的加解密，还有 PM2 等等。
 
-大家在后续使用的过程中，可以不断学习～
+后续还需要不断学习～
 
 [slide]
 
-# 蟹蟹大家！
-
-<div style='display: none'>
-
-Still remember the VERY FIRST TIME I run that FRAME and heard you teach us about it.
-
-"比较成熟的框架，帮助快速的迭代开发..."
-
-Still remember that young girl looking up at you with great admiration, long dark hair, never made my nail.
-
-I LOVE that ME, also LOVE the changes I have decided to made.
-
-THANK YOU FOR ALL THESE DAYS IN BK.
-
-</div>
+# 🌸 蟹蟹大家！
