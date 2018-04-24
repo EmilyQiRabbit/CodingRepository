@@ -1,8 +1,7 @@
 title: Frame Share
 speaker: Yuqi
 theme: moon
-date: 2018年4月
-describe: 
+date: 2018 年 4 月
 
 [slide]
 
@@ -278,7 +277,7 @@ entry: {
 }
 ```
 
-但是在 dev.bable.js 文件中：
+但是在 dev.babal.js 文件中：
 
 ```JavaScript
 const entry = options.entry;
@@ -289,7 +288,23 @@ delete entry.vendor;
 
 # dll +1
 
-这里涉及 DLLPlugin 和 DLLReferencePlugin，他们拆分了 bundle
+我们构建前端项目的时候，往往希望第三方库（vendors）和自己写的代码可以分开打包，因为第三方库往往不需要经常打包更新。对此Webpack的文档建议用 CommonsChunkPlugin 来单独打包第三方库。
+
+但是这会存在一个哈希值变化的问题.....这意味着每次发布版本的时候，vendor代码都要刷新，即使我并没有修改其中的代码。
+
+**这里我们引入 dll**
+
+这么一来有几个好处：
+
+* Dll 打包以后是独立存在的，只要其包含的库没有增减、升级，hash也不会变化，因此线上的 dll 代码不需要随着版本发布频繁更新。
+* App部分代码修改后，只需要编译 app 部分的代码，dll 部分，只要包含的库没有增减、升级，就不需要重新打包。这样也大大提高了每次编译的速度。
+* 假设你有多个项目，使用了相同的一些依赖库，它们就可以共用一个dll。
+
+[slide]
+
+# dll +1 
+
+dll 的应用涉及 DLLPlugin 和 DLLReferencePlugin 两个插件
 
 相关的配置参考：
 * webpack.DllPlugin & webpack.DllReferencePlugin
@@ -373,7 +388,7 @@ dll 就实现了对 bundle 的拆分。另外，开发模式下，bundle.js 没�
 * 3、webpack config 的 entry 和 output
 * 4、生成 html 的插件 HtmlWebpackPlugin
 * 5、一个简单的 webpack 栗子 👉[一篇超详细的文章](https://juejin.im/post/5ad75bf6f265da5059168b1d)
-* 6、bundle 和 dll：DLLPlugin 和 DLLReferencePlugin 两个插件
+* 6、dll：DLLPlugin 和 DLLReferencePlugin 两个插件 👉[参考](https://segmentfault.com/a/1190000005969643)
 * 7、Babel
 
 [slide]
@@ -666,7 +681,7 @@ if (cluster.isMaster) {
 
 [slide]
 
-# 今天就酱吧
+# 今天就酱吧 0.0
 
 其实还有很多东西没有细讲，比如 webpack 的 loader，还有 node 中涉及的加解密，还有 PM2 等等。
 
