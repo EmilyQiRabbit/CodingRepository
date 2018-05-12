@@ -107,7 +107,7 @@ function getUserJobById(id) {
 
 **解决办法：**
 
-🙀 卧槽忽然就复杂了？！浏览下代码哈，然后跟着注释慢慢来.....
+🙀 卧槽忽然就复杂了？！浏览下代码哈，可以跟着注释慢慢来.....
 
 ```javascript
  function Promise(fn) {
