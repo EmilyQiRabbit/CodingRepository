@@ -115,8 +115,8 @@ function getUserJobById(id) {
     value = null,
     callbacks = [];
 
-  // then 方法在一开始的时候其实就已经执行了，是同步的
-  this.then = function (onFulfilled) {
+  // then 方法在一开始的时候其实就已经执行了，是同步的。而 then 函数中的那个参数（也就是一个函数），才是异步执行的。
+  this.then = function (onFulfilled) { // 这部分的重点就是要处理，这个函数返回了一个 Promise 实例。现在，不管什么，then 都包装成了一个 promise 返回了。
     return new Promise(function (resolve) {
       // 统一放在 handle 函数中处理，并且，then 函数此时返回的是一个 promise 实例，它会直接执行 handle 方法，也满足可以链式调用。
       handle({
@@ -152,7 +152,8 @@ function getUserJobById(id) {
     if (newValue && (typeof newValue === 'object' || typeof newValue === 'function')) {
       var then = newValue.then;
       if (typeof then === 'function') {
-        then.call(newValue, resolve);
+        then.call(newValue, resolve); // newValue 是 getUserJobById 方法返回的 promise。相当于这个 promise 的 resolve 被巧妙的换了换，然后直接返回。
+        // 所以，当 then 参数中的 promise 异步返回后，执行的其实是下一个 then 创建的 promise 的 resolve，也就接上了 then 链。
         return;
       }
     }
@@ -168,6 +169,18 @@ function getUserJobById(id) {
   fn(resolve); // resolve 将会在 fn 中被触发
 }
 ```
+
+> 1.getUserId 生成的 promise（简称getUserId promise）异步操作成功，执行其内部方法 resolve，传入的参数正是异步操作的结果id。
+
+> 2.调用 handle 方法处理 callbacks 队列中的回调：getUserJobById 方法，生成新的 promise（简称 getUserJobById promise）。
+
+> 3.执行之前由 getUserId promise 的 then 方法生成的 bridge promise 的 resolve 方法，传入参数为 getUserJobById promise。这种情况下，会将该 resolve 方法传入getUserJobById promise 的 then 方法中，并直接返回。
+
+> 4.在 getUserJobById promise 异步操作成功时，执行其 callbacks 中的回调：getUserId bridge promise 的 resolve 方法。
+
+> 5.最后，执行 getUserId bridge promise 的后邻 promise 的 callbacks 中的回调。
+
+醉了。🤪
 
 > Note: While the syntax of this function is almost identical to that of apply(), the fundamental difference is that call() accepts an argument list, while apply() accepts a single array of arguments.
 
