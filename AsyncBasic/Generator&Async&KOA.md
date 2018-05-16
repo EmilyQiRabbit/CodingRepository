@@ -1,5 +1,5 @@
 
-更多详细内容可见：[阮一峰的 ECMAScript 6 入门](http://es6.ruanyifeng.com)
+更多关于 Generator 和 Async 的内容可见：[阮一峰的 ECMAScript 6 入门](http://es6.ruanyifeng.com)
 
 # Generator
 
@@ -161,3 +161,71 @@ const asyncReadFile = async function () {
 ```
 
 当函数执行的时候，一旦遇到 await 就会先返回，等到异步操作完成，再接着执行函数体内后面的语句。
+
+# Koa-compose
+
+[源码戳这里](https://github.com/koajs/compose/blob/master/index.js)
+
+这个组件是 Koa 实现洋葱圈中间件的核心。
+
+核心代码：
+
+```js
+function compose (middleware) {
+  if (!Array.isArray(middleware)) throw new TypeError('Middleware stack must be an array!')
+  for (const fn of middleware) {
+    if (typeof fn !== 'function') throw new TypeError('Middleware must be composed of functions!')
+  }
+
+  /**
+   * @param {Object} context
+   * @return {Promise}
+   * @api public
+   */
+
+  return function (context, next) {
+    // last called middleware #
+    let index = -1
+    return dispatch(0)
+    function dispatch (i) {
+      if (i <= index) return Promise.reject(new Error('next() called multiple times'))
+      index = i
+      let fn = middleware[i]
+      if (i === middleware.length) fn = next
+      if (!fn) return Promise.resolve()
+      try {
+        return Promise.resolve(fn(context, function next () { // 调用中间件函数，可以看出，开发者写中间件的时候，要求传入的参数为一个有两个参数的函数。
+          return dispatch(i + 1) // next 函数会返回一个 promise 对象
+        }))
+      } catch (err) {
+        return Promise.reject(err)
+      }
+    }
+  }
+}
+```
+
+koa 中引用了 compose 的代码为：
+
+```js
+const fn = compose(this.middleware);
+...
+return fn(ctx).then(handleResponse).catch(onerror);
+```
+
+一个为 koa app 加入中间件的例子：
+
+```js
+app.use(async (ctx, next) => {
+  const start = Date.now();
+  await next(); 
+  /* 这里，会等到 next 返回之后，函数才会继续向下执行。
+  根据上文的源码，调用 next 方法后，会走：dispatch(i + 1)，
+  这会走进下一个中间件（相当于洋葱圈进入部分）。*/
+  const ms = Date.now() - start;
+  console.log(`${ctx.method} ${ctx.url} - ${ms}ms`);
+});
+```
+
+这样，koa 完成的是：异步中间件根据声明顺序逐步深入，前一个中间件异步函数返回后，就会执行下一个中间件的操作。直到最深入的一个中间件，然后再逐个返回去（很像递归的调用栈）。
+
