@@ -1,0 +1,47 @@
+<!DOCTYPE>
+<html>
+  <head>
+    <style>
+      div{
+        border: 1px #000 solid;
+      }
+      span {
+        padding: 10px;
+        margin: 10px;
+        line-height: 100px;
+        width: 300px;
+        height: 300px;
+        border: inherit
+      }
+      input{
+        padding: 100px;
+        margin: 100px;
+        width: 200px;
+        height: 300px;
+        line-height: 100px;
+      }
+      li:first-of-type + li {
+        color: red;
+      }
+      /* .box {
+        --1: #369;
+      }
+      body {
+        background-color: var(--1, #ccc);
+      } */
+    </style>
+  </head>
+  <body>
+    <div>
+      <span>123</span><span>456</span><span>789</span>
+    </div>
+    <div>
+      <input type='button' value='button'/>
+    </div>
+    <ul>
+      <li>One</li>
+      <li>Two!</li>
+      <li>Three</li>
+    </ul>
+  </body>
+</html>
