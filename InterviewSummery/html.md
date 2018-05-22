@@ -102,7 +102,7 @@
 
 > The `<address>` tag should NOT be used to describe a postal address, unless it is a part of the contact information.
 
-`<address>` 标签中不能有 `<h1>~<h6>`、`<article>`、`<address>`、`<aside>`、`<footer>`、`<header>`、`<hgroup>`、`<nav>`、`<section>`等标签。
+`<address>` 标签中不能有 `<h1>...<h6>`、`<article>`、`<address>`、`<aside>`、`<footer>`、`<header>`、`<hgroup>`、`<nav>`、`<section>`等标签。
 
 ```html
 <address>
