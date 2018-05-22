@@ -49,13 +49,34 @@
 
 应用层为操作系统或网络应用程序提供访问网络服务的接口。应用层协议的代表包括：
 
-使用 TCP 协议：FTP（文件传送）、HTTP（万维网）、TELNET（远程终端接入）、SMTP（电子邮件）。
+* 使用 TCP 协议：FTP（文件传送）、HTTP（万维网）、TELNET（远程终端接入）、SMTP（电子邮件）。
 
-使用 UDP 协议：DNS（域名转换）、TFTP（文件传送）。
+* 使用 UDP 协议：DNS（域名转换）、TFTP（文件传送）。
 
-# 2、从 URL 发起请求到数据渲染的过程解析
+# 2、从输入 URL 到页面加载完成
 
+**主要步骤：**
+* DNS 解析
+* 建立 TCP 链接
+* 发送 HTTP 请求
+  * 请求行
+  * 请求报头：Accept, Accept-Charset, Accept-Encoding, Accept-Language, Content-Type, Authorization, Cookie, User-Agent
+  * 请求正文
+* 服务器响应请求，并返回 HTTP 报文
+  * 状态码
+  * 响应报头
+  * 响应正文
+* 浏览器解析加载页面
+  * 渲染原理
+    * 解析 HTML 以重建 DOM 树
+    * 解析CSS，构建渲染树
+    * 布局渲染树，给出每个节点所应该出现在屏幕上的精确坐标
+    * 遍历渲染树，并绘制渲染树
+  * reflow/repaint
 
+[🔗参考链接](https://juejin.im/post/5a50320c6fb9a01cb912b64a)
+
+（啊，文章真的不错哦，不是我想偷懒🤣）
 
 # 3、TCP 三次握手/四次挥手
 
