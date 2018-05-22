@@ -16,7 +16,7 @@ js 部分信息量比较大啊...毕竟重头戏
 
 # 4、this
 
-# 5、generator/async
+# 5、Async 是如何封装 Generator 的
 
 # 6、PWA
 
