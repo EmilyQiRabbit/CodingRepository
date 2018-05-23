@@ -6,11 +6,30 @@
 >      * [JS篇](https://github.com/EmilyQiRabbit/CodingRepository/blob/master/InterviewSummery/js.md)
 >      * [NetWork篇](https://github.com/EmilyQiRabbit/CodingRepository/blob/master/InterviewSummery/network.md)
 
-js 部分信息量比较大啊...毕竟重头戏
-
 # 1、排序算法
 
+又一个记了忘、忘了记的知识点...
 
+[捂脸]忘了的，那[戳这里吧](https://blog.csdn.net/hguisu/article/details/7776068)
+
+## 冒泡排序
+
+核心思路：每当两相邻的数比较后发现它们的排序与排序要求相反时，就将它们互换。
+
+```java
+void bubbleSort(int a[], int n){  
+  for(int i=0 ; i<n-1; ++i) {  
+    for(int j=0; j<n-i-1; ++j) {  
+      if(a[j] > a[j+1])  
+      {  
+        int tmp = a[j] ; a[j] = a[j+1] ;  a[j+1] = tmp;  
+      }  
+    }  
+  }  
+} 
+```
+
+...(待续)
 
 # 2、动态规划
 
@@ -78,7 +97,6 @@ public static int fib(int n)
   return Memo[n];
 }
 ```
-
 
 小节内容选自 [CSDN 博客](https://blog.csdn.net/u013309870/article/details/75193592)。原文比较深入，上文仅是最简单的概念说明。
 
@@ -306,9 +324,9 @@ function spawn(genF) {
 }
 ```
 
-# 6、PWA
+# 6、PWA（Progressive Web App）
 
-
+[下一代 Web 应用模型 —— Progressive Web App](https://huangxuan.me/2017/02/09/nextgen-web-pwa/)
 
 # 7、关系型数据库/非关系型数据库
 
@@ -331,5 +349,3 @@ function spawn(genF) {
 1. 面向高性能**并发读写**的 key-value 数据库：key-value 数据库的主要特点即使具有极高的并发读写性能，**Redis, Tokyo Cabinet, Flare** 就是这类的代表。
 2. 面向海量数据访问的面向文档数据库：这类数据库的特点是，可以在海量的数据中**快速的查询**数据，典型代表为 MongoDB 以及 CouchDB。（*文档型数据库可以看作是键值数据库的升级版，一般用类似 json 的格式存储。*）
 3. 其他还有，图形数据库、列存储（Column-oriented）数据库等等。
-
-# 8、懒加载/分块加载的实现
