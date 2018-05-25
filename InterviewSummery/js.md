@@ -10,22 +10,47 @@
 
 又一个记了忘、忘了记的知识点...
 
-[捂脸]忘了的，那[戳这里吧](https://blog.csdn.net/hguisu/article/details/7776068)
+[捂脸]忘了的，那 👉[戳这里吧](http://www.cnblogs.com/onepixel/articles/7674659.html)
+这个教程有动图演示，炒鸡棒的哦🎉
 
 ## 冒泡排序
 
 核心思路：每当两相邻的数比较后发现它们的排序与排序要求相反时，就将它们互换。
 
-```java
-void bubbleSort(int a[], int n){  
-  for(int i=0 ; i<n-1; ++i) {  
-    for(int j=0; j<n-i-1; ++j) {  
-      if(a[j] > a[j+1])  
-      {  
-        int tmp = a[j] ; a[j] = a[j+1] ;  a[j+1] = tmp;  
-      }  
-    }  
-  }  
+```javaScript
+function bubbleSort(arr) {
+    var len = arr.length;
+    for (var i = 0; i < len; i++) {
+        for (var j = 0; j < len - 1 - i; j++) {
+            if (arr[j] > arr[j+1]) {        // 相邻元素两两对比
+                var temp = arr[j+1];        // 元素交换
+                arr[j+1] = arr[j];
+                arr[j] = temp;
+            }
+        }
+    }
+    return arr;
+}
+```
+
+## 选择排序
+
+```javaScript
+function selectionSort(arr) {
+    var len = arr.length;
+    var minIndex, temp;
+    for (var i = 0; i < len - 1; i++) {
+        minIndex = i;
+        for (var j = i + 1; j < len; j++) {
+            if (arr[j] < arr[minIndex]) {     // 寻找最小的数
+                minIndex = j;                 // 将最小数的索引保存
+            }
+        }
+        temp = arr[i];
+        arr[i] = arr[minIndex];
+        arr[minIndex] = temp;
+    }
+    return arr;
 } 
 ```
 
