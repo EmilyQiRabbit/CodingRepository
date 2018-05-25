@@ -326,7 +326,90 @@ function spawn(genF) {
 
 # 6、PWA（Progressive Web App）
 
-[下一代 Web 应用模型 —— Progressive Web App](https://huangxuan.me/2017/02/09/nextgen-web-pwa/)
+原文链接：[下一代 Web 应用模型 —— Progressive Web App](https://huangxuan.me/2017/02/09/nextgen-web-pwa/)
+
+## Web 在移动端面临的问题
+
+1. 客户端软件（即网页）需要下载所带来的网络延迟 -> 可能出现白屏。
+2. Web 应用依赖浏览器作为入口所带来的体验问题。也就是，web 应用是浏览器这个应用中的应用，使用起来并不方便，而且加载也比原生应用要慢。
+
+## 解决方案
+
+1. Service Worker 与 Cache Storage：显著提高应用加载速度、甚至让 web 应用可以在离线环境使用。
+2. Web App Manifest：用于描述 web 应用元数据（metadata）、让 web 应用能够**像原生应用一样被添加到主屏**、全屏执行。
+3. Push API 与 Notification API：进一步提高 web 应用与操作系统集成能力，让 web 应用能在未被激活时发起推送通知。
+
+结果：**无需担心网络延迟；有着独立入口与独立的保活机制。**
+
+下面，我们来介绍部分解决方案：
+
+## Web App Manifest
+
+卧槽这个太厉害了，真的可以直接添加到桌面...赶紧自己启动个服务试试看！（好鸡冻，原谅我见识短～啊哈哈～）
+
+实现的方法非常简单！
+
+在 html 模版中引入：
+
+```html
+<link rel="manifest" href="./pwa/manifest.json">
+```
+
+写好配置文件 manifest.json：
+
+```json
+{ 
+  "short_name": "Manifest Sample", 
+  "name": "Web Application Manifest Sample", 
+  "icons": [{ "src": "launcher-icon-2x.png", "sizes": "96x96", "type": "image/png" }], 
+  "scope": "/", 
+  "start_url": "../blockChain", 
+  "display": "standalone", 
+  "orientation": "landscape",
+  "theme_color": "#000", 
+  "background_color": "#fff"
+}
+```
+
+字段说明：
+
+* scope：定义了 web 应用的浏览作用域，比如作用域外的 URL 就会打开浏览器而不会在当前 PWA 里继续浏览。
+* start_url：定义了一个 PWA 的入口页面。比如说你添加 Hux Blog 的任何一个文章到主屏，从主屏打开时都会访问 Hux Blog 的主页。
+* orientation：终于，我们可以锁定屏幕旋转了🎉。
+* theme_color/background_color：主题色与背景色，用于配置一些可定制的操作系统 UI 以提高用户体验，比如 Android 的状态栏、任务栏等。
+
+就成了啊！厉害了简直🤩
+
+## Service Worker
+
+**目的：让 web 应用离线执行。**
+
+其实，Service Worker 就是一个可编程的 Web Worker，它像一个位于浏览器与网络之间的**客户端代理**，可以拦截、处理、响应流经的 HTTP 请求；配合随之引入 Cache Storage API，你可以自由管理 HTTP 请求文件粒度的缓存，这使得 Service Worker 可以从缓存中向 web 应用提供资源，即使是在离线的环境下。
+
+比如说，我们可以给网页 foo.html 注册这么一个 Service Worker，它将劫持由 foo.html 发起的一切 HTTP 请求，并统统返回未设置 Content-Type 的 Hello World!：
+
+```js
+// sw.js
+self.onfetch = (e) => {
+  e.respondWith(new Response('Hello World!'))
+}
+```
+
+关于这部分，完整的代码可以见我的 Github/NodeCode：[pwa 入口](https://github.com/EmilyQiRabbit/NodeCode/blob/master/BlockChainInNode/views/PWAFirstTaste.ejs) 以及 [pwa 相关](https://github.com/EmilyQiRabbit/NodeCode/tree/master/BlockChainInNode/public/pwa)
+
+在浏览器的调试方法是，打开开发者工具后，选择 Application，就可以在边栏看到 Server Worker，以及下面的 Cache。
+
+感兴趣的话，可以自己跑跑项目试一试。
+
+## Push Notification
+
+...
+
+## 总结
+
+「我们相信 Web，是因为相信它是解决设备差异化的终极方案；我们相信，当 Web 在今天做不到一件事的时候，是因为它还没来得及去实现，而不是因为他做不到。而 Phonegap，它的终极目的就是消失在 Web 标准的背后。」
+
+在不丢失 web 的开放灵魂，在不需要依靠 Hybrid 把应用放在 App Store 的前提下，让 web 应用能够渐进式地跳脱出浏览器的标签，变成用户眼中的 App。这是 Alex Russell 在 2015 年提出 PWA 概念的原委。
 
 # 7、关系型数据库/非关系型数据库
 
