@@ -457,3 +457,9 @@ self.onfetch = (e) => {
 1. 面向高性能**并发读写**的 key-value 数据库：key-value 数据库的主要特点即使具有极高的并发读写性能，**Redis, Tokyo Cabinet, Flare** 就是这类的代表。
 2. 面向海量数据访问的面向文档数据库：这类数据库的特点是，可以在海量的数据中**快速的查询**数据，典型代表为 MongoDB 以及 CouchDB。（*文档型数据库可以看作是键值数据库的升级版，一般用类似 json 的格式存储。*）
 3. 其他还有，图形数据库、列存储（Column-oriented）数据库等等。
+
+# 8、一个按需加载的解决方案：Intersection Observer API
+
+Demo 可见 👉 test.html
+
+官方文档 👉 [戳这里](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API)

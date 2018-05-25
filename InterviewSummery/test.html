@@ -2,8 +2,16 @@
 <html>
   <head>
     <style>
-      div{
-        border: 1px #000 solid;
+      #scrollArea {
+        height: 300%
+      }
+      .main{
+        width: 100%;
+        height: 100%;
+        overflow: scroll;
+        border: 1px red solid;
+        padding: 10px;
+        box-sizing: border-box;
       }
       span {
         padding: 10px;
@@ -14,14 +22,10 @@
         border: inherit
       }
       input{
-        padding: 100px;
-        margin: 100px;
         width: 200px;
-        height: 300px;
-        line-height: 100px;
       }
       li:first-of-type + li {
-        color: red;
+        color: gray;
       }
       /* .box {
         --1: #369;
@@ -32,16 +36,58 @@
     </style>
   </head>
   <body>
-    <div>
-      <span>123</span><span>456</span><span>789</span>
+    <div class='main'>
+      <div>
+        <span>123</span><span>456</span><span>789</span>
+      </div>
+      <div>
+        <input type='button' value='button'/>
+      </div>
+      <ul id='listItem'>
+        <li>One</li>
+        <li>Two!</li>
+        <li>Three</li>
+        <li>Four</li>
+        <li>Five</li>
+        <li>Four</li>
+        <li>Three</li>
+        <li>Two</li>
+        <li>One</li>
+      </ul>
+      <div id='scrollArea'>
+
+      </div>
     </div>
-    <div>
-      <input type='button' value='button'/>
-    </div>
-    <ul>
-      <li>One</li>
-      <li>Two!</li>
-      <li>Three</li>
-    </ul>
+    <script>
+      const options = {
+        root: document.querySelector('.main'),
+        rootMargin: '0px',
+        threshold: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+      }
+
+      const color = ['#e06c73', '#D68A44', '#FBEF6D', '#619F55', '#88BECD', '#4F8CCC', '#5A2A7C', '#4F8CCC', '#88BECD', '#619F55']
+
+      const callback = function(entries, observer) { 
+        entries.forEach(entry => {
+          // Each entry describes an intersection change for one observed
+          // target element:
+          //   entry.boundingClientRect
+          //   entry.intersectionRatio
+          //   entry.intersectionRect
+          //   entry.isIntersecting
+          //   entry.rootBounds
+          //   entry.target
+          //   entry.time
+          //console.log(entry)
+          const intersectionRatio = entry.intersectionRatio;
+          target.style.background = color[parseInt(entry.intersectionRatio*10)]
+        });
+      };
+
+      const observer = new IntersectionObserver(callback, options);
+
+      const target = document.querySelector('#listItem');
+      observer.observe(target);
+    </script>
   </body>
 </html>
