@@ -46,7 +46,7 @@ function selectionSort(arr) {
                 minIndex = j;                 // 将最小数的索引保存
             }
         }
-        temp = arr[i];
+        temp = arr[i]; // 交换
         arr[i] = arr[minIndex];
         arr[minIndex] = temp;
     }
@@ -66,7 +66,7 @@ function insertionSort(arr) {
         preIndex = i - 1;
         current = arr[i];
         while (preIndex >= 0 && arr[preIndex] > current) {
-            arr[preIndex + 1] = arr[preIndex];
+            arr[preIndex + 1] = arr[preIndex]; // 移位，为后续的插入预留位置
             preIndex--;
         }
         arr[preIndex + 1] = current;
