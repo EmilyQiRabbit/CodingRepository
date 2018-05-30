@@ -75,6 +75,43 @@ function insertionSort(arr) {
 }
 ```
 
+## 归并排序（Merge Sort）
+
+该算法是采用分治法（Divide and Conquer）的一个非常典型的应用。将已有序的子序列合并，得到完全有序的序列；即先使每个子序列有序，再使子序列段间有序。
+
+```js
+function mergeSort(arr) {  // 采用自上而下的递归方法
+    var len = arr.length;
+    if (len < 2) {
+        return arr;
+    }
+    var middle = Math.floor(len / 2),
+        left = arr.slice(0, middle),
+        right = arr.slice(middle);
+    return merge(mergeSort(left), mergeSort(right));
+}
+ 
+function merge(left, right) {
+    var result = [];
+ 
+    while (left.length>0 && right.length>0) {
+        if (left[0] <= right[0]) {
+            result.push(left.shift());
+        } else {
+            result.push(right.shift());
+        }
+    }
+ 
+    while (left.length)
+        result.push(left.shift());
+ 
+    while (right.length)
+        result.push(right.shift());
+ 
+    return result;
+}
+```
+
 ...(待续)
 
 # 2、动态规划
