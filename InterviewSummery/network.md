@@ -69,7 +69,7 @@
 * 浏览器解析加载页面
   * 渲染原理
     * 解析 HTML 以重建 DOM 树
-    * 解析CSS，构建渲染树
+    * 解析 CSS，构建渲染树
     * 布局渲染树，给出每个节点所应该出现在屏幕上的精确坐标
     * 遍历渲染树，并绘制渲染树
   * reflow/repaint
@@ -83,4 +83,12 @@
 ![3](../imgs/3.png)
 
 ![4](../imgs/4.png)
+
+# git merge & git rebase
+
+![merge](../imgs/rebase2.png)
+
+![rebase](../imgs/rebase3.png)
+
+![rebase](../imgs/rebase4.png)
 
