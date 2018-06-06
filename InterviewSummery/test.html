@@ -13,14 +13,14 @@
         padding: 10px;
         box-sizing: border-box;
       }
-      span {
+      /* span {
         padding: 10px;
         margin: 10px;
         line-height: 100px;
         width: 300px;
         height: 300px;
         border: inherit
-      }
+      } */
       input{
         width: 200px;
       }
@@ -33,10 +33,23 @@
       body {
         background-color: var(--1, #ccc);
       } */
+      .hasAfter1:after{
+        content: ' (我)'
+      }
+      .hasAfter{
+        display: inline-block;
+        max-width: 86px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
     </style>
   </head>
   <body>
     <div class='main'>
+      <div class='wrapDiv'>
+        <span class='hasAfter1'><span class='hasAfter'>LongNameLongNameLongName</span></span>
+      </div>
       <div>
         <span>123</span><span>456</span><span>789</span>
       </div>
