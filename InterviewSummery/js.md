@@ -204,7 +204,84 @@ function heapSort(arr) {
 }
 ```
 
-...(待续)
+## 计数排序（Counting Sort）
+
+计数排序的「核心」在于：将输入的数据值转化为键存储在「额外开辟」的数组空间中。 作为一种线性时间复杂度的排序，计数排序要求输入的「数据必须是有确定范围的整数」。
+
+```js
+function countingSort(arr, maxValue) {
+    var bucket = new Array(maxValue + 1), // 对于 bucket 来说，下标就是原始 arr 中的元素值
+        sortedIndex = 0;
+        arrLen = arr.length,
+        bucketLen = maxValue + 1;
+ 
+    for (var i = 0; i < arrLen; i++) {
+        if (!bucket[arr[i]]) {
+            bucket[arr[i]] = 0;
+        }
+        bucket[arr[i]]++;
+    }
+ 
+    for (var j = 0; j < bucketLen; j++) {
+        while(bucket[j] > 0) {
+            arr[sortedIndex++] = j;
+            bucket[j]--;
+        }
+    }
+ 
+    return arr;
+}
+```
+
+**当输入的元素是 n 个 0到 k 之间的整数时，时间复杂度是O(n+k)，空间复杂度也是O(n+k))，其排序速度快于任何比较排序算法。当k不是很大并且序列比较集中时，计数排序是一个很有效的排序算法。**
+
+## 桶排序（Bucket Sort）
+
+桶排序是计数排序的升级版。它利用了函数的映射关系，**高效与否的关键就在于这个映射函数的确定**。
+桶排序 (Bucket sort)的工作的原理：假设输入数据服从均匀分布，将数据分到有限数量的桶里，每个桶再分别排序（有可能再使用别的排序算法或是以递归方式继续使用桶排序进行排）。
+
+```js
+function bucketSort(arr, bucketSize) {
+    if (arr.length === 0) {
+      return arr;
+    }
+ 
+    var i;
+    var minValue = arr[0];
+    var maxValue = arr[0];
+    for (i = 1; i < arr.length; i++) {
+      if (arr[i] < minValue) {
+          minValue = arr[i];                // 输入数据的最小值
+      } else if (arr[i] > maxValue) {
+          maxValue = arr[i];                // 输入数据的最大值
+      }
+    }
+ 
+    // 桶的初始化
+    var DEFAULT_BUCKET_SIZE = 5;            // 设置桶的默认数量为5
+    bucketSize = bucketSize || DEFAULT_BUCKET_SIZE;
+    var bucketCount = Math.floor((maxValue - minValue) / bucketSize) + 1;  
+    var buckets = new Array(bucketCount);
+    for (i = 0; i < buckets.length; i++) {
+        buckets[i] = [];
+    }
+ 
+    // 利用映射函数将数据分配到各个桶中
+    for (i = 0; i < arr.length; i++) {
+        buckets[Math.floor((arr[i] - minValue) / bucketSize)].push(arr[i]);
+    }
+ 
+    arr.length = 0;
+    for (i = 0; i < buckets.length; i++) {
+        insertionSort(buckets[i]);                      // 对每个桶进行排序，这里使用了插入排序
+        for (var j = 0; j < buckets[i].length; j++) {
+            arr.push(buckets[i][j]);                     
+        }
+    }
+ 
+    return arr;
+}
+```
 
 # 2、动态规划
 
