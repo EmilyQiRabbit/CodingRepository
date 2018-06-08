@@ -153,6 +153,57 @@ function swap(arr, i, j) {
 }
 ```
 
+## 堆排序（Heap Sort）
+
+堆排序（Heapsort）是指利用「堆」这种数据结构所设计的一种排序算法。堆是一个近似完全二叉树的结构，并同时满足：子结点的键值或索引总是小于（或者大于）它的父节点。
+
+```js
+var len;    // 因为声明的多个函数都需要数据长度，所以把len设置成为全局变量
+ 
+function buildMaxHeap(arr) { // 建立大顶堆
+    len = arr.length;
+    for (var i = Math.floor(len/2); i >= 0; i--) { // Math.floor(len/2) -> 最后一个非叶子节点的位置
+        heapify(arr, i);
+    }
+}
+ 
+function heapify(arr, i) { // 堆调整 -> i 表示根节点位置
+    var left = 2 * i + 1, // 左右子节点坐标
+        right = 2 * i + 2,
+        largest = i;
+ 
+    if (left < len && arr[left] > arr[largest]) {
+        largest = left;
+    }
+ 
+    if (right < len && arr[right] > arr[largest]) {
+        largest = right;
+    }
+ 
+    if (largest != i) {
+        swap(arr, i, largest);
+        heapify(arr, largest); // 递归的继续调整
+    }
+}
+ 
+function swap(arr, i, j) {
+    var temp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = temp;
+}
+ 
+function heapSort(arr) {
+    buildMaxHeap(arr);
+ 
+    for (var i = arr.length - 1; i > 0; i--) {
+        swap(arr, 0, i);
+        len--;
+        heapify(arr, 0);
+    }
+    return arr;
+}
+```
+
 ...(待续)
 
 # 2、动态规划
