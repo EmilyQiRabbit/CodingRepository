@@ -159,3 +159,44 @@ body {
   background-color: var(--1, #cd0000);
 }
 ```
+
+# 新特性：position: sticky
+
+最简单的一个栗子：
+
+```html
+<div class="container">
+  <div class="sticky-box">内容1</div>
+  <div class="sticky-box">内容2</div>
+  <div class="sticky-box">内容3</div>
+  <div class="sticky-box">内容4</div>
+</div>
+```
+
+```css
+.container {
+    background: #eee;
+    width: 600px;
+    height: 1000px;
+    margin: 0 auto;
+    font-size: 30px;
+    text-align: center;
+    color: #fff;
+    line-height: 60px;
+}
+
+.sticky-box {
+    position: -webkit-sticky;
+    position: sticky;
+    height: 60px;
+    margin-bottom: 30px;
+    background: #ff7300;
+    top: 0px;
+}
+```
+
+运行结果：
+
+![](https://cloud.githubusercontent.com/assets/8554143/22967003/97af8828-f39f-11e6-82db-55405160eea3.gif)
+
+[🙋 浏览器支持](https://caniuse.com/#search=position%3Asticky)
