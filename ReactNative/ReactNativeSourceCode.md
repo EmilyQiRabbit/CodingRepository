@@ -848,15 +848,3 @@ ReactShadowNode 用来描述 DOM 树的节点，它将 js 层传递过来的 UI 
 ### NativeViewHierarchyManager.createView()（Java 方法）
 
 该函数调用 ViewManager.createView() 创建 View，ViewManager.createView() 方法调用相应组件的构造函数构建 View 实例，并设置事件发射器，当前 View 发生的事件会通过发射器发送到JS层处理。
-
-Just Something about the Frameworks file:
-
-" Still remember the VERY FIRST TIME I run that FRAME and heard you teach us about it.
-
-"比较成熟的框架，帮助快速的迭代开发..."
-
-Still remember that young girl looking up at you with great admiration, long dark hair, never made my nail.
-
-I LOVE that ME, also LOVE the changes I have decided to made.
-
-THANK YOU FOR ALL THESE DAYS IN BK. "
