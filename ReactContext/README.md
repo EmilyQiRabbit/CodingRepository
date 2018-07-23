@@ -10,6 +10,8 @@
 
 ## 两种方式
 
+[完整代码](https://stackblitz.com/edit/react-3bgjtj?file=ContextTest2.js)
+
 旧版本：
 
 ```jsx
