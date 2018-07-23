@@ -122,11 +122,193 @@ shouldComponentUpdate(nextProps, nextState, nextContext)
 componetWillUpdate(nextProps, nextState, nextContext)
 ```
 
-## 需要注意的一点
+*以上部分节选自[张国钰的掘金博客](https://juejin.im/post/5a90e0545188257a63112977)*
+
+## 使用 context 需要注意的
 
 React App 的组件是树状结构，一层一层延伸，父子组件是一对多的线性依赖。随意的使用 Context 其实会破坏这种依赖关系，导致组件之间一些不必要的额外依赖，降低组件的复用性，进而可能会影响到App的可维护性。
 
-*以上部分节选自[张国钰的掘金博客](https://juejin.im/post/5a90e0545188257a63112977)*
+另外，在 React issue 中，经常能找到 React.PureComponent、shouldComponentUpdate 与包含 Context 的库结合后引发的一些问题。
+**原因在于 shouldComponentUpdate 会切断子树的 rerender，当 state 或 props 没有发生变化时，可能意外中断上层 context 传播。也就是当 shouldComponentUpdate 返回 false 时，context 的变化是无法被底层所感知的。**
+
+### ShouldComponentUpdate 和 Context 如何一起工作？
+
+需要全局模式科学上网：[原文链接](http://zhaozhiming.github.io/blog/2017/02/19/how-to-safely-use-react-context-zh-cn/)
+
+* Context 正确的打开方式是：Context 不应该改变，它应该不可变
+
+* 因此组件应该在其构造时只接收 context 一次
+
+> 或者，为了使其不同，我们不应该直接把 state 保存到 context 中，取而代之，我们应该像依赖注入系统一样使用 conext。
+
+### 通过基于 context 的依赖注入来和变更进行交流
+
+精简版代码：
+
+```js
+// Theme 组件存储当前的主题状态，并允许组件订阅将来变化（的数据）
+class Theme {
+  constructor(color) {
+    this.color = color
+    this.subscriptions = []
+  }
+
+  setColor(color) {
+    this.color = color
+    this.subscriptions.forEach(f => f())
+  }
+
+  subscribe(f) {
+    this.subscriptions.push(f)
+  }
+}
+
+class ThemeProvider extends React.Component {
+  constructor(p, c) {
+    super(p, c)
+    // 主题提供者在它的整个生命周期中使用同样的主题对象
+    this.theme = new Theme(this.props.color)
+  }
+
+  // 必要时更新主题，更新的内容会传播给订阅的主键
+  componentWillReceiveProps(next) {
+    this.theme.setColor(next.color)
+  }
+
+  getChildContext() {
+    return {theme: this.theme}
+  }
+
+  render() {
+    return <div>{this.props.children}</div>
+  }
+}
+ThemeProvider.childContextTypes = {
+  theme: React.PropTypes.object
+}
+
+class ThemedText extends React.Component {
+  componentDidMount() {
+    // 订阅未来改变的主题
+    this.context.theme.subscribe(() => this.forceUpdate())
+  }
+  render() {
+    return <div style=>
+      {this.props.children}
+    </div>
+  }
+}
+ThemedText.contextTypes = {
+  theme: React.PropTypes.object
+}
+```
+
+完整版代码：
+
+```js
+const TODOS = ["Get coffee", "Eat cookies"]
+
+class TodoList extends React.PureComponent {
+  render() {
+    return (<ul>
+      {this.props.todos.map(todo => 
+        <li key={todo}><ThemedText>{todo}</ThemedText></li>
+      )}
+    </ul>)
+  }
+}
+
+class App extends React.Component {
+  constructor(p, c) {
+    super(p, c)
+    this.state = { color: "blue" } 
+  }
+
+  render() {
+    return <ThemeProvider color={this.state.color}>
+      <button onClick={this.makeRed.bind(this)}>
+      	<ThemedText>Red please!</ThemedText>
+      </button>
+      <TodoList todos={TODOS} />
+    </ThemeProvider>
+  }
+  
+  makeRed() {
+    this.setState({ color: "red" })
+  }
+}
+
+class Theme {
+  constructor(color) {
+    this.color = color
+    this.subscriptions = []
+  }
+  
+  setColor(color) {
+    this.color = color
+    this.subscriptions.forEach(f => f())
+  }
+
+  subscribe(f) {
+    this.subscriptions.push(f)
+  }
+}
+
+class ThemeProvider extends React.Component {
+  constructor(s, c) {
+    super(s, c)
+    this.theme = new Theme(this.props.color)
+  }
+
+  componentWillReceiveProps(next) {
+    this.theme.setColor(next.color)
+  }
+
+  getChildContext() {
+    return {theme: this.theme}
+  }
+
+  render() {
+    return <div>{this.props.children}</div>
+  }
+}
+ThemeProvider.childContextTypes = {
+  theme: React.PropTypes.object
+}
+
+class ThemedText extends React.Component {
+  componentDidMount() {
+    this.context.theme.subscribe(() => this.forceUpdate())
+  }
+  render() {
+    return <div style={{color: this.context.theme.color}}>
+      {this.props.children}
+    </div>
+  }
+}
+ThemedText.contextTypes = {
+  theme: React.PropTypes.object
+}
+
+ReactDOM.render(
+  <App />,
+  document.getElementById("container")
+)
+```
+
+> 虽然我们的 ThemeProvider 的实现变得更复杂了，它创建了一个Theme 对象来保持了我们主题的状态，Theme对象同时也是一个事件发射器，这可以让像 ThemeText 一样的组件来订阅未来的变化，Theme 对象通过 ThemeProvider 在组件树中传递。context 仍然是用来做这个的，但只有刚开始的时候传递了 context，后面的更新都通过 Theme 自己来传播，并没有重新创建一个 context。
+
+## Context 可能有的坑
+
+* context 相当于一个全局变量，难以追溯数据源，很难找到是在哪个地方中对 context 进行了更新。
+
+* 组件中过分依赖 context，会使组件耦合度提高，既不利于组件复用，也不利于组件测试。
+
+* 当 props 改变或是 setState 被调用，getChildContext 也会被调用，生成新的 context，但 shouldComponentUpdate 返回的 false 会 block 住 context，导致没有更新。
+
+Dan Abramov 给出的明智的使用方法是：
+
+![whenToUseContext](./imgs/whenToUseContext.jpeg)
 
 ## 官方文档解析
 
@@ -360,7 +542,8 @@ context.Consumer = context;
 return context
 ```
 
-注意到这里有一个循环引用...
+MD挖不下去、看不懂了 #@_@# ...
+还求大佬指点～
 
 
 
