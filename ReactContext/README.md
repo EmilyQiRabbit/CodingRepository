@@ -308,7 +308,7 @@ ReactDOM.render(
 
 Dan Abramov 给出的明智的使用方法是：
 
-![whenToUseContext](./imgs/whenToUseContext.jpeg)
+![whenToUseContext](../imgs/whenToUseContext.jpeg)
 
 ## 官方文档解析
 
