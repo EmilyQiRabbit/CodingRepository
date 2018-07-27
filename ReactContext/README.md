@@ -124,7 +124,7 @@ shouldComponentUpdate(nextProps, nextState, nextContext)
 componetWillUpdate(nextProps, nextState, nextContext)
 ```
 
-*以上部分节选自[张国钰的掘金博客](https://juejin.im/post/5a90e0545188257a63112977)*
+*以上节选自[张国钰的掘金博客](https://juejin.im/post/5a90e0545188257a63112977)*
 
 ## 使用 context 需要注意的
 
@@ -134,8 +134,6 @@ React App 的组件是树状结构，一层一层延伸，父子组件是一对�
 **原因在于 shouldComponentUpdate 会切断子树的 rerender，当 state 或 props 没有发生变化时，可能意外中断上层 context 传播。也就是当 shouldComponentUpdate 返回 false 时，context 的变化是无法被底层所感知的。**
 
 ### ShouldComponentUpdate 和 Context 如何一起工作？
-
-需要全局模式科学上网：[原文链接](http://zhaozhiming.github.io/blog/2017/02/19/how-to-safely-use-react-context-zh-cn/)
 
 * Context 正确的打开方式是：Context 不应该改变，它应该不可变
 
