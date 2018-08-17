@@ -690,3 +690,109 @@ self.onfetch = (e) => {
 Demo 可见 👉 test.html
 
 官方文档 👉 [戳这里](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API)
+
+# 9、React 兄弟组件通讯：观察者模式
+
+观察者模式也叫：发布者-订阅者模式。即，发布者发布事件，订阅者监听事件并做出反应。
+
+栗子：
+
+```js
+import eventProxy from '../eventProxy'
+
+class Parent extends Component{
+  render() {
+    return (
+      <div>
+        <Child_1/>
+        <Child_2/>
+      </div>
+    );
+  }
+}
+// componentDidUpdate 与 render 方法与上例一致
+class Child_1 extends Component{
+  componentDidMount() {
+    setTimeout(() => {
+      // 发布 msg 事件
+      eventProxy.trigger('msg', 'end');
+    }, 1000);
+  }
+}
+// componentDidUpdate 方法与上例一致
+class Child_2 extends Component{
+  state = {
+    msg: 'start'
+  };
+
+  componentDidMount() {
+  	// 监听 msg 事件
+    eventProxy.on('msg', (msg) => {
+      this.setState({
+        msg
+      });
+    });
+  }
+
+  render() {
+    return <div>
+      <p>child_2 component: {this.state.msg}</p>
+      <Child_2_1 />
+    </div>
+  }
+}
+```
+
+eventProxy:
+
+```js
+// eventProxy.js
+'use strict';
+const eventProxy = {
+  onObj: {},
+  oneObj: {},
+  on: function(key, fn) {
+    if(this.onObj[key] === undefined) {
+      this.onObj[key] = [];
+    }
+
+    this.onObj[key].push(fn);
+  },
+  one: function(key, fn) {
+    if(this.oneObj[key] === undefined) {
+      this.oneObj[key] = [];
+    }
+
+    this.oneObj[key].push(fn);
+  },
+  off: function(key) {
+    this.onObj[key] = [];
+    this.oneObj[key] = [];
+  },
+  trigger: function() {
+    let key, args;
+    if(arguments.length == 0) {
+      return false;
+    }
+    key = arguments[0];
+    args = [].concat(Array.prototype.slice.call(arguments, 1));
+
+    if(this.onObj[key] !== undefined
+      && this.onObj[key].length > 0) {
+      for(let i in this.onObj[key]) {
+        this.onObj[key][i].apply(null, args);
+      }
+    }
+    if(this.oneObj[key] !== undefined
+      && this.oneObj[key].length > 0) {
+      for(let i in this.oneObj[key]) {
+        this.oneObj[key][i].apply(null, args);
+        this.oneObj[key][i] = undefined;
+      }
+      this.oneObj[key] = [];
+    }
+  }
+};
+
+export default eventProxy;
+```
