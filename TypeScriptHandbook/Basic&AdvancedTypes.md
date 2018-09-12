@@ -138,5 +138,3 @@ pet.swim();    // errors
 ## Type Aliases
 
 [ 未完待续 ]
-
-
