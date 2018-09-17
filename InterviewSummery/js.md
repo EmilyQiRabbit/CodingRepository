@@ -40,6 +40,7 @@
     - [非关系型数据库](#非关系型数据库)
 - [8、一个按需加载的解决方案：Intersection Observer API](#8、一个按需加载的解决方案：Intersection-Observer-API)
 - [9、React 兄弟组件通讯：观察者模式](#9、React-兄弟组件通讯：观察者模式)
+- [10、基础芝士：对象的解构赋值](#10、基础芝士：对象的解构赋值)
 
 # 1、排序算法
 
@@ -832,7 +833,7 @@ const eventProxy = {
 export default eventProxy;
 ```
 
-# 基础芝士：对象的解构赋值
+# 10、基础芝士：对象的解构赋值
 
 栗子1:
 
@@ -857,3 +858,6 @@ foo // error: foo is not defined
 ```
 
 上面代码中，foo 是匹配的模式，baz 才是变量。真正被赋值的是变量 baz，而不是模式 foo。
+
+
+
