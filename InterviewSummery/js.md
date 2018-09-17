@@ -13,35 +13,35 @@
     - [冒泡排序](#冒泡排序)
     - [选择排序](#选择排序)
     - [插入排序](#插入排序)
-    - [归并排序（Merge Sort）](#归并排序（Merge-Sort）)
+    - [归并排序(MergeSort)](#归并排序(MergeSort))
     - [快速排序](#快速排序)
-    - [堆排序（Heap Sort）](#堆排序（Heap-Sort）)
-    - [计数排序（Counting Sort）](#计数排序（Counting-Sort）)
-    - [桶排序（Bucket Sort）](#桶排序（Bucket-Sort）)
+    - [堆排序(HeapSort)](#堆排序(HeapSort))
+    - [计数排序(CountingSort)](#计数排序(CountingSort))
+    - [桶排序(BucketSort)](#桶排序(BucketSort))
 - [动态规划](#动态规划)
     - [动态规划算法的两种形式](#动态规划算法的两种形式)
-        - [自顶向下法（设立备忘录 Memo）](#自顶向下法（设立备忘录-Memo）)
+        - [自顶向下法(设立备忘录Memo)](#自顶向下法(设立备忘录Memo))
         - [自底向上](#自底向上)
 - [事件委托](#事件委托)
-- [this 的绑定规则](#this-的绑定规则)
-    - [1）默认绑定](#1）默认绑定)
-    - [2）隐式绑定](#2）隐式绑定)
-    - [3）显式绑定](#3）显式绑定)
-    - [4）new 绑定](#4）new-绑定)
-- [作为语法糖，Async 是如何封装 Generator 的](#作为语法糖，Async-是如何封装-Generator-的)
-- [PWA（Progressive Web App）](#PWA（Progressive-Web-App）)
-    - [Web 在移动端面临的问题](#Web-在移动端面临的问题)
+- [this的绑定规则](#this的绑定规则)
+    - [1)默认绑定](#1)默认绑定)
+    - [2)隐式绑定](#2)隐式绑定)
+    - [3)显式绑定](#3)显式绑定)
+    - [4)new绑定](#4)new绑定)
+- [Async是如何封装Generator的](#Async是如何封装Generator的)
+- [PWA(ProgressiveWebApp)](#PWA(ProgressiveWebApp))
+    - [Web在移动端面临的问题](#Web在移动端面临的问题)
     - [解决方案](#解决方案)
     - [Web App Manifest](#Web-App-Manifest)
     - [Service Worker](#Service-Worker)
     - [Push Notification](#Push-Notification)
     - [总结](#总结)
-- [关系型数据库/非关系型数据库](#关系型数据库/非关系型数据库)
+- [关系型数据库与非关系型数据库](#关系型数据库与非关系型数据库)
     - [关系型数据库](#关系型数据库)
     - [非关系型数据库](#非关系型数据库)
-- [一个按需加载的解决方案：Intersection Observer API](#一个按需加载的解决方案：Intersection-Observer-API)
-- [React 兄弟组件通讯：观察者模式](#React-兄弟组件通讯：观察者模式)
-- [基础芝士：对象的解构赋值](#基础芝士：对象的解构赋值)
+- [一个按需加载的解决方案:IntersectionObserverAPI](#一个按需加载的解决方案:IntersectionObserverAPI)
+- [React兄弟组件通讯:观察者模式](#React兄弟组件通讯:观察者模式)
+- [基础芝士:对象的解构赋值](#基础芝士:对象的解构赋值)
 
 # 排序算法
 
@@ -112,7 +112,7 @@ function insertionSort(arr) {
 }
 ```
 
-## 归并排序（Merge Sort）
+## 归并排序(MergeSort)
 
 该算法是采用分治法（Divide and Conquer）的一个非常典型的应用。将已有序的子序列合并，得到完全有序的序列；即先使每个子序列有序，再使子序列段间有序。
 
@@ -190,7 +190,7 @@ function swap(arr, i, j) {
 }
 ```
 
-## 堆排序（Heap Sort）
+## 堆排序(HeapSort)
 
 堆排序（Heapsort）是指利用「堆」这种数据结构所设计的一种排序算法。堆是一个近似完全二叉树的结构，并同时满足：子结点的键值或索引总是小于（或者大于）它的父节点。
 
@@ -241,7 +241,7 @@ function heapSort(arr) {
 }
 ```
 
-## 计数排序（Counting Sort）
+## 计数排序(CountingSort)
 
 计数排序的「核心」在于：将输入的数据值转化为键存储在「额外开辟」的数组空间中。 作为一种线性时间复杂度的排序，计数排序要求输入的「数据必须是有确定范围的整数」。
 
@@ -272,7 +272,7 @@ function countingSort(arr, maxValue) {
 
 **当输入的元素是 n 个 0到 k 之间的整数时，时间复杂度是O(n+k)，空间复杂度也是O(n+k))，其排序速度快于任何比较排序算法。当k不是很大并且序列比较集中时，计数排序是一个很有效的排序算法。**
 
-## 桶排序（Bucket Sort）
+## 桶排序(BucketSort)
 
 桶排序是计数排序的升级版。它利用了函数的映射关系，**高效与否的关键就在于这个映射函数的确定**。
 桶排序 (Bucket sort)的工作的原理：假设输入数据服从均匀分布，将数据分到有限数量的桶里，每个桶再分别排序（有可能再使用别的排序算法或是以递归方式继续使用桶排序进行排）。
@@ -342,7 +342,7 @@ function bucketSort(arr, bucketSize) {
 
 为了说明这两种方法，举一个最简单的例子：求斐波拉契数列Fibonacci。
 
-### 自顶向下法（设立备忘录 Memo）
+### 自顶向下法(设立备忘录Memo)
 
 ```java
 public static int Fibonacci(int n)
@@ -413,11 +413,11 @@ document.onclick = function(event){
 
 2. 动态的添加 DOM 元素，不需要因为元素的改动而修改事件绑定。
 
-# this 的绑定规则
+# this的绑定规则
 
 **每个函数的 this 是在调用时被绑定的，完全取决于函数的调用位置。寻找 this，就是寻找调用位置，也就是寻找“函数被调用的位置”。**
 
-## 1）默认绑定
+## 1)默认绑定
 
 默认绑定时，this 指向全局对象。
 
@@ -433,7 +433,7 @@ foo(); // 2
 
 如果使用严格模式(strict mode)，那么全局对象将无法使用默认绑定，因此 this 会绑定到 undefined。
 
-## 2）隐式绑定
+## 2)隐式绑定
 
 ```js
 function foo() { 
@@ -490,7 +490,7 @@ doFoo( obj.foo ); // "oops, global"
 
 参数传递其实就是一种**隐式赋值**，因此我们传入函数时也会被隐式赋值，所以结果和上一个例子一样。
 
-## 3）显式绑定
+## 3)显式绑定
 
 方法：使用 `call(..)` 和 `apply(..)`。
 
@@ -543,7 +543,7 @@ var b = bar( 3 ); // 2 3
 console.log( b ); // 5
 ```
 
-## 4）new 绑定
+## 4)new绑定
 
 JavaScript 的 new 操作符，使用方法看起来和那些面向类的语言一样。所以绝大多数开发者都认为 JavaScript 中 new 的机制也和那些语言一样。然而，JavaScript 中 new 的机制实际上和面向类的语言**完全不同**。
 
@@ -568,7 +568,7 @@ console.log( bar.a ); // 2
 
 使用 new 来调用 `foo(..)` 时，我们会构造一个新对象并把它绑定到 `foo(..)` 调用中的 this 上。new 是最后一种可以影响函数调用时 this 绑定行为的方法，我们称之为 new 绑定。
 
-# 作为语法糖，Async 是如何封装 Generator 的
+# Async是如何封装Generator的
 
 async 函数的实现，就是将 Generator 函数和自动执行器，包装在一个函数里。
 
@@ -613,11 +613,11 @@ function spawn(genF) {
 }
 ```
 
-# PWA（Progressive Web App）
+# PWA(ProgressiveWebApp)
 
 原文链接：[下一代 Web 应用模型 —— Progressive Web App](https://huangxuan.me/2017/02/09/nextgen-web-pwa/)
 
-## Web 在移动端面临的问题
+## Web在移动端面临的问题
 
 1. 客户端软件（即网页）需要下载所带来的网络延迟 -> 可能出现白屏。
 2. Web 应用依赖浏览器作为入口所带来的体验问题。也就是，web 应用是浏览器这个应用中的应用，使用起来并不方便，而且加载也比原生应用要慢。
@@ -700,7 +700,7 @@ self.onfetch = (e) => {
 
 在不丢失 web 的开放灵魂，在不需要依靠 Hybrid 把应用放在 App Store 的前提下，让 web 应用能够渐进式地跳脱出浏览器的标签，变成用户眼中的 App。这是 Alex Russell 在 2015 年提出 PWA 概念的原委。
 
-# 关系型数据库/非关系型数据库
+# 关系型数据库与非关系型数据库
 
 ## 关系型数据库
 
@@ -722,13 +722,13 @@ self.onfetch = (e) => {
 2. 面向海量数据访问的面向文档数据库：这类数据库的特点是，可以在海量的数据中**快速的查询**数据，典型代表为 MongoDB 以及 CouchDB。（*文档型数据库可以看作是键值数据库的升级版，一般用类似 json 的格式存储。*）
 3. 其他还有，图形数据库、列存储（Column-oriented）数据库等等。
 
-# 一个按需加载的解决方案：Intersection Observer API
+# 一个按需加载的解决方案:IntersectionObserverAPI
 
 Demo 可见 👉 test.html
 
 官方文档 👉 [戳这里](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API)
 
-# React 兄弟组件通讯：观察者模式
+# React兄弟组件通讯:观察者模式
 
 观察者模式也叫：发布者-订阅者模式。即，发布者发布事件，订阅者监听事件并做出反应。
 
@@ -834,7 +834,7 @@ const eventProxy = {
 export default eventProxy;
 ```
 
-# 基础芝士：对象的解构赋值
+# 基础芝士:对象的解构赋值
 
 栗子1:
 
@@ -859,6 +859,9 @@ foo // error: foo is not defined
 ```
 
 上面代码中，foo 是匹配的模式，baz 才是变量。真正被赋值的是变量 baz，而不是模式 foo。
+
+
+
 
 
 
