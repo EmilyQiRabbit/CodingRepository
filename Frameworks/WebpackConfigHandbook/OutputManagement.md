@@ -165,7 +165,7 @@ module.exports = {
 例如：
 
 1. options.fileName（ 默认为 manifest.json
-2. options.publicPath（ 默认为 output.publicPath
+2. options.publicPath（ 默认为 output.publicPath：A path prefix that will be added to values of the manifest.
 3. options.seed：manifest 文件的默认配置
 ...([详见](https://github.com/danethurber/webpack-manifest-plugin)))
 
