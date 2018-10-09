@@ -1,6 +1,6 @@
 # Webpack Output 管理
 
-## 基础
+## Basic
 
 **output选项指定webpack输出的位置。**
 
