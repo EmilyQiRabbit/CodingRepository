@@ -81,6 +81,18 @@ output.publicPath 配置的是：所有资源的 **基础路径**。即、项目
 
 注：一般情况下 publicPath 应该以 '/' 结尾，而其他 loader 或插件的配置不要以 '/' 开头。
 
+## output 的 filename 和 chunkFilename
+
+### filename：
+
+这个很常见了，就是打包输出的文件名。
+
+### chunkFilename：
+
+未被列在 entry 中、却又需要被打包出来的文件的命名配置。在按需加载（异步）模块的时候可能会用到，这样的文件是没有被列在 entry 中的。
+
+例如：使用 CommonJS 的方式异步加载模块，或者使用 react-loadable 加载组件。
+
 ## HtmlWebpackPlugin
 
 HtmlWebpackPlugin 是一个插件，使用前需要安装一下。
