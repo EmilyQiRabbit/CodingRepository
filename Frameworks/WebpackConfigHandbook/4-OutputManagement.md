@@ -2,6 +2,8 @@
 
 ## 基础
 
+**output选项指定webpack输出的位置。**
+
 目录结构：
 
 ```
@@ -60,6 +62,24 @@ print.bundle.js  2.74 kB       1  [emitted]         print
 ```
 
 注：package.json 中 build 命令为： webpack
+
+## output 的 path 和 publicPath
+
+output.path 配置的是打包后输出的目录，对应一个绝对路径，例如在项目中通常会做如下配置：
+
+```js
+output: {
+	path: path.resolve(__dirname, '../dist'),
+}
+```
+
+output.publicPath 配置的是：所有资源的 **基础路径**。即、项目中引用 css，js，img 等资源时候的一个基础路径，这个基础路径要配合每个资源配置的特定路径使用。
+
+所以打包后资源的访问路径可以这样表示：
+
+> 静态资源最终访问路径 = output.publicPath + 资源 loader 或插件等配置路径
+
+注：一般情况下 publicPath 应该以 '/' 结尾，而其他 loader 或插件的配置不要以 '/' 开头。
 
 ## HtmlWebpackPlugin
 
