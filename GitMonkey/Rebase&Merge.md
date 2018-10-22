@@ -38,9 +38,23 @@
 
 流程图：
 
-![]()
+![](https://github.com/EmilyQiRabbit/CodingRepository/blob/master/GitMonkey/images/rebase.jpg?raw=true)
 
+最后生成的 release 分支 log 是：
 
+```
+36e4213 (feature-01) feature: 01 add
+f8f5d3f release add sth
+9b41db6 init
+```
+
+feature-01 分支 log 是：
+
+```
+36e4213 (HEAD -> feature-01) feature: 01 add
+f8f5d3f release add sth
+9b41db6 init
+```
 
 ### merge
 
@@ -48,5 +62,23 @@
 
 流程图：
 
-![]()
+![](https://github.com/EmilyQiRabbit/CodingRepository/blob/master/GitMonkey/images/merge.jpg?raw=true)
 
+
+最后生成的 release 分支 log 是：
+
+```
+3cecdc6 (HEAD -> release, feature-02) Merge branch 'release' into feature-02
+46ad815 release add
+24c29cb feature 02 add
+36e4213 (feature-01) feature: 01 add
+```
+
+feature-02 分支 log 是：
+
+```
+3cecdc6 (HEAD -> feature-02, release) Merge branch 'release' into feature-02
+46ad815 release add
+24c29cb feature 02 add
+36e4213 (feature-01) feature: 01 add
+```
