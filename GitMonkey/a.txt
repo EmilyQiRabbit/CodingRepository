@@ -1,0 +1,15 @@
+hello world!
+I am testing vim now ~
+next will be Monkey git ~
+
+<<<<<<< HEAD(release)
+this is sth added by release
+=======
+this is sth added by feature 01
+>>>>>>> feature: 01 add
+
+<<<<<<< HEAD
+this is sth added by feature 02
+=======
+this is sth added by release
+>>>>>>> release
