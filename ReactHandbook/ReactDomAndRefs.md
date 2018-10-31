@@ -44,6 +44,6 @@ The value of the ref differs depending on the type of the node:
 
 1. When the ref attribute is used on an **HTML element**, the ref created in the constructor with React.createRef() receives the **underlying DOM element** as its current property.
 
-2. When the ref attribute is used on a **ustom class component**, the ref object receives the **mounted instance of the component** as its current.
+2. When the ref attribute is used on a **custom class component**, the ref object receives the **mounted instance of the component** as its current.
 
 3. You may not use the ref attribute on functional components because they don’t have instances.
