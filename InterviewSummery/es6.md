@@ -18,7 +18,7 @@ console.log(bar); // 报错 ReferenceError
 let bar = 2;
 ```
 
-### deadzone -- 暂时性死区
+### deadzone -- 暂时性死区 (*)
 
 只要块级作用域内存在 let 命令，它所声明的变量就“绑定”（binding）这个区域，不再受外部的影响。
 
@@ -120,7 +120,7 @@ foo // error: foo is not defined
 
 **最容易考的就是箭头函数和 this 的关系**。
 
-### 箭头函数
+### 箭头函数 (*)
 
 箭头函数有几个使用注意点。
 
@@ -136,9 +136,113 @@ foo // error: foo is not defined
 
 ## Set & Map
 
+### Set
+
+它类似于数组，但是成员的值都是唯一的，没有重复的值。
+
+```js
+const s = new Set();
+
+[2, 3, 5, 4, 5, 2, 2].forEach(x => s.add(x));
+
+for (let i of s) {
+  console.log(i);
+}
+// 2 3 5 4
+```
+
+**Set 结构的实例有以下属性**。
+
+* Set.prototype.constructor：构造函数，默认就是Set函数。
+* Set.prototype.size：返回Set实例的成员总数。
+
+Set 实例的方法分为两大类：操作方法（用于操作数据）和遍历方法（用于遍历成员）。下面先介绍四个操作方法。
+
+* add(value)：添加某个值，返回 Set 结构本身。
+* delete(value)：删除某个值，返回一个布尔值，表示删除是否成功。
+* has(value)：返回一个布尔值，表示该值是否为Set的成员。
+* clear()：清除所有成员，没有返回值。
+
+Set 结构的实例有四个遍历方法，可以用于遍历成员。
+
+* keys()：返回键名的遍历器
+* values()：返回键值的遍历器
+* entries()：返回键值对的遍历器
+* forEach()：使用回调函数遍历每个成员
+
+### WeakSet
+
+区别：
+
+1. WeakSet 的成员**只能是对象**，而不能是其他类型的值。
+
+2. 其次，WeakSet 中的对象都是弱引用，即垃圾回收机制不考虑 WeakSet 对该对象的引用，也就是说，如果其他对象都不再引用该对象，那么垃圾回收机制会自动回收该对象所占用的内存，**不考虑**该对象还存在于 WeakSet 之中。
+
+### Map
+
+它类似于对象，也是键值对的集合，但是“键”的范围**不限于字符串**，各种类型的值（包括对象）都可以当作键。也就是说，Object 结构提供了“字符串—值”的对应，Map 结构提供了“值—值”的对应，是一种更完善的 Hash 结构实现。如果你需要“键值对”的数据结构，Map 比 Object 更合适。
+
+注意，只有对同一个对象的引用，Map 结构才将其视为同一个键。这一点要非常小心。
+
+```js
+const map = new Map();
+
+map.set(['a'], 555);
+map.get(['a']) // undefined
+```
+
+```js
+const map = new Map();
+
+const k1 = ['a'];
+const k2 = ['a'];
+
+map
+.set(k1, 111)
+.set(k2, 222);
+
+map.get(k1) // 111
+map.get(k2) // 222
+```
+
+如果 Map 的键是一个简单类型的值（数字、字符串、布尔值），则只要两个值严格相等，Map 将其视为一个键，比如 0 和 -0 就是一个键，布尔值 true 和字符串 true 则是两个不同的键。另外，undefined 和 null 也是两个不同的键。虽然 NaN 不严格相等于自身，但 Map 将其视为同一个键。
+
+###WeakMap
+
+WeakMap与Map的区别有两点。
+
+1. 首先，WeakMap只接受对象作为键名（null除外），不接受其他类型的值作为键名。
+
+2. 它的键名所引用的对象都是弱引用，**即垃圾回收机制不将该引用考虑在内**。因此，只要所引用的对象的其他引用都被清除，垃圾回收机制就会释放该对象所占用的内存。也就是说，一旦不再需要，WeakMap 里面的键名对象和所对应的键值对会自动消失，不用手动删除引用。
+
 ## Eventloop
 
 ## Generator
+
+基本用法：
+
+```js
+function* helloWorldGenerator() {
+  yield 'hello';
+  yield 'world';
+  return 'ending';
+}
+
+var hw = helloWorldGenerator();
+
+hw.next()
+// { value: 'hello', done: false }
+
+hw.next()
+// { value: 'world', done: false }
+
+hw.next()
+// { value: 'ending', done: true }
+
+hw.next()
+// { value: undefined, done: true }
+
+```
 
 ## async
 
