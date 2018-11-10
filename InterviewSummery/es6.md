@@ -217,6 +217,8 @@ WeakMap与Map的区别有两点。
 
 ## Eventloop
 
+[Eventloop 的讲解传送门](https://github.com/EmilyQiRabbit/CodingRepository/blob/master/EventLoop/EventLoop.md)
+
 ## Generator
 
 基本用法：
@@ -250,15 +252,102 @@ hw.next()
 
 ## decorator
 
-# 其他
+decorator 即修饰器。用来修改类的行为。目前，有一个提案将这项功能，引入了 ECMAScript。
+
+例子：
+
+```js
+@testable
+class MyTestableClass {
+  // ...
+}
+
+function testable(target) {
+  target.isTestable = true;
+}
+
+MyTestableClass.isTestable // true
+```
+
+上面代码中，@testable 就是一个修饰器。它修改了 MyTestableClass 这个类的行为，为它加上了静态属性 isTestable。testable 函数的参数 target 是 MyTestableClass 类本身。
+
+基本上，修饰器的行为就是下面这样。
+
+```js
+@decorator
+class A {}
+
+// 等同于
+
+class A {}
+A = decorator(A) || A;
+```
+
+也就是说，修饰器是一个对类进行处理的函数。修饰器函数的第一个参数，就是所要修饰的目标类。
+
+修饰器还可以修饰类的属性
+
+```js
+class Person {
+  @readonly
+  name() { return `${this.first} ${this.last}` }
+}
+
+// 修饰器函数 readonly 一共可以接受三个参数。
+// 修饰器第一个参数是类的原型对象，上例是 Person.prototype，修饰器的本意是要“修饰”类的实例，但是这个时候实例还没生成，所以只能去修饰原型（这不同于类的修饰，那种情况时target参数指的是类本身）
+// 第二个参数是所要修饰的属性名
+// 第三个参数是该属性的描述对象。
+
+function readonly(target, name, descriptor){
+  // descriptor对象原来的值如下
+  // {
+  //   value: specifiedFunction,
+  //   enumerable: false,
+  //   configurable: true,
+  //   writable: true
+  // };
+  descriptor.writable = false;
+  return descriptor;
+}
+
+readonly(Person.prototype, 'name', descriptor);
+// 类似于
+Object.defineProperty(Person.prototype, 'name', descriptor);
+```
+
+另一个例子：@log 修饰器，可以起到输出日志的作用。
+
+```js
+class Math {
+  @log
+  add(a, b) {
+    return a + b;
+  }
+}
+
+function log(target, name, descriptor) {
+  var oldValue = descriptor.value;
+
+  descriptor.value = function() {
+    console.log(`Calling ${name} with`, arguments);
+    return oldValue.apply(this, arguments);
+  };
+
+  return descriptor;
+}
+
+const math = new Math();
+
+// passed parameters should get logged now
+math.add(2, 4);
+```
+
+注意，修饰器只能用户类和类的方法，不能用于函数。因为函数存在提升。导致修饰器无法生效。
+
+但是，类不存在提升的问题。
 
 ## apply & call 和 bind
 
-
-
-
-
-
-
+[戳这里](https://github.com/EmilyQiRabbit/CodingRepository/blob/master/InterviewSummery/js.md#显式绑定)
 
 
