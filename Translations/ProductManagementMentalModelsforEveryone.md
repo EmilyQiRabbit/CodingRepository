@@ -2,7 +2,7 @@
 > * 原文作者：[Brandon Chu](https://blackboxofpm.com/@brandonmchu?source=post_header_lockup)
 > * 译文出自：[掘金翻译计划](https://github.com/xitu/gold-miner)
 > * 本文永久链接：[https://github.com/xitu/gold-miner/blob/master/TODO1/product-management-mental-models-for-everyone.md](https://github.com/xitu/gold-miner/blob/master/TODO1/product-management-mental-models-for-everyone.md)
-> * 译者：
+> * 译者：[EmilyQiRabbit](https://github.com/EmilyQiRabbit)
 > * 校对者：
 
 # Product Management Mental Models for Everyone

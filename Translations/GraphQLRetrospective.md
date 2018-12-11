@@ -5,7 +5,7 @@
 > * 译者：[EmilyQiRabbit](https://github.com/EmilyQiRabbit)
 > * 校对者：
 
-# GRAPHQL 回顾
+# 关于使用 GRAPHQL 构建项目的回顾
 
 在 2016 年末，我们决定用 Python 和 [React](https://reactjs.org/) 重写老旧的 PHP 遗留系统。由于只有四个月的时间来为 2017 年的节日季节建立 MVP，我们必须非常谨慎地决定如何投入时间。
 
