@@ -9,9 +9,9 @@
 
 ![](https://cdn-images-1.medium.com/max/2000/1*uVpU7iruzXafhU2VLeH4lw.jpeg)
 
-烟雾艺术立方 -- MattysFlicks --（CC BY 2.0）
+烟雾艺术立方 —— MattysFlicks ——（CC BY 2.0）
 
-> **注意：**本篇是[**“Composing Software” 这本书**](https://leanpub.com/composingsoftware)的一部分，它将以系列博客的形式展开新生。它涵盖了 JavaScript（ES6+）函数式编程和可组合软件技术的最基础的知识。
+> **注意：**本篇是[**“组合式程序” 这本书**](https://leanpub.com/composingsoftware)的一部分，它将以系列博客的形式展开新生。它涵盖了 JavaScript（ES6+）函数式编程和可组合软件技术的最基础的知识。
 > [_< 前情回顾_](https://github.com/xitu/gold-miner/blob/master/TODO1/transducers-efficient-data-processing-pipelines-in-javascript.md) _|_ [_<< 从第一部分开始_](https://juejin.im/post/5c0dd214518825444758453a)
 
 lens 是一对可组合的 getter 和 setter 纯函数，它会关注对象内部的一个特殊字段，并且会遵从一系列名为 lens 法则的公理。将对象视为**整体**，字段视为**局部**。getter 以对象整体作为参数，然后返回 lens 所关注的对象的一部分。
@@ -28,7 +28,7 @@ setter 则以对象整体作为参数，以及一个需要设置的值，然后�
 
 > **注意：**在本篇中，我们将在代码示例中使用一些原生的 lenses，这样是为了对总体概念有更深入的了解。而对于生产环境下的代码，你则应该看看像 Ramda 这样的经过充分测试的库。不同的 lens 库的 API 也不同，比起本篇给出的例子，更有可能用可组合性更强、更优雅的方法来描述 lenses。
 
-假设你有一个元组数组（tuple array），代表了一个包含 `x`，`y` 和 `z`三点的坐标：
+假设你有一个元组数组（tuple array），代表了一个包含 `x`，`y` 和 `z` 三点的坐标：
 
 ```
 [x, y, z]
@@ -76,9 +76,9 @@ Lenses 把 getter 和 setter 对做得更加通用，更有可组合性，从而
 
 lens 法则其实是代数公理，它们确保 lens 能良好运行。
 
-1.  `view(lens, set(lens, a, store)) ≡ a` -- 如果你将一组值设置到一个 store 里，并且马上通过 lens 看到了值，你将能获取到这个被设置的值。
-2.  `set(lens, b, set(lens, a, store)) ≡ set(lens, b, store)` -- 如果你为 `a` 设置了一个 lens 值，然后马上为 `b` 设置 lens 值，那么和你只设置了 `b` 的值的结果是一样的。
-3.  `set(lens, view(lens, store), store) ≡ store` -- 如果你从 store 中获取 lens 值，然后马上将这个值再设置回 store 里，这个值就等于没有修改过。
+1.  `view(lens, set(lens, a, store)) ≡ a` —— 如果你将一组值设置到一个 store 里，并且马上通过 lens 看到了值，你将能获取到这个被设置的值。
+2.  `set(lens, b, set(lens, a, store)) ≡ set(lens, b, store)` —— 如果你为 `a` 设置了一个 lens 值，然后马上为 `b` 设置 lens 值，那么和你只设置了 `b` 的值的结果是一样的。
+3.  `set(lens, view(lens, store), store) ≡ store` —— 如果你从 store 中获取 lens 值，然后马上将这个值再设置回 store 里，这个值就等于没有修改过。
 
 在我们深入代码示例之前，记住，如果你在生产环境中使用 lenses，你应该使用经过充分测试的 lens 库。在 JavaScript 语言中，我知道的最好的是 Ramda。目前，为了更好的学习，我们先跳过这部分，自己写一些原生的 lenses。
 
@@ -167,7 +167,7 @@ const store = fooStore;
 }
 ```
 
-### 编写 Lenses
+### 组合 Lenses
 
 Lenses 是可组合的。当你组合 lenses 的时候，得到的结果将会深入对象的字段，穿过所有对象中字段可能的组合路径。我们将从 Ramda 引入功能全面的 `lensProp` 来做说明：
 
@@ -267,7 +267,7 @@ const over = curry(
 
 * * *
 
-**Eric Elliott** 是一名分布式系统专家，也是书籍 [“Composing Software”](https://leanpub.com/composingsoftware) 和 [“Programming JavaScript Applications”](https://ericelliottjs.com/product/programming-javascript-applications-ebook/) 的作者。作为 [DevAnywhere.io](https://devanywhere.io/) 的合作创始人，他教给开发人员远程工作的技能，并鼓励他们找到工作和生活的平衡。他构建加密项目并鼓励开发团队使用它，并且为 **Adobe Systems，****Zumba Fitness，****The Wall Street Journal，****ESPN，****BBC，**和包括 **Usher，Frank Ocean，Metallica 等很多顶级音乐艺术家** 等等提供开发经验。
+**Eric Elliott** 是一名分布式系统专家，也是书籍 [“组合式程序”](https://leanpub.com/composingsoftware) 和 [“JavaScript 应用程序编程”](https://ericelliottjs.com/product/programming-javascript-applications-ebook/) 的作者。作为 [DevAnywhere.io](https://devanywhere.io/) 的合作创始人，他教给开发人员远程工作的技能，并鼓励他们找到工作和生活的平衡。他构建加密项目并鼓励开发团队使用它，并且为 **Adobe Systems，****Zumba Fitness，****The Wall Street Journal，****ESPN，****BBC，**和包括 **Usher，Frank Ocean，Metallica 等很多顶级音乐艺术家** 等等提供开发经验。
 
 **他喜欢生活在偏远的地方，他身边有世界上最美的女人。**
 
