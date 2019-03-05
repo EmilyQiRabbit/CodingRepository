@@ -82,3 +82,9 @@ feature-02 分支 log 是：
 24c29cb feature 02 add
 36e4213 (feature-01) feature: 01 add
 ```
+
+## rebase & merge，怎么选
+
+**在自己独立开发的分支上**，偏向 rebase，因为这样能够在同步主干分支后，还保持 commit 干净，不会像 merge 那样出现 merge 的记录。
+
+但是如果不是独立开发的分支，而是需要和伙伴们合作、同步开发，那么**必须**使用 merge，这样才能避免 push -f 这样的操作。
