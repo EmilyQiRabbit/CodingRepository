@@ -4,7 +4,7 @@
 
 ## 栗子
 
-让我们继续以上一篇 [代码分割](https://github.com/EmilyQiRabbit/CodingRepository/blob/master/Frameworks/WebpackConfigHandbook/9-CodeSplitting.md) 的例子，进一步演示这个概念。上一篇中，我们生成了一个独立的 chunk：lodash.bundle。但问题是，不需要任何用户这个 bundle 交互就会加载 —— 这意味着每次加载页面时，请求都会被触发。这对其实没有太大帮助，而且可能会对性能产生负面影响。
+让我们继续以上一篇 [代码分割](https://github.com/EmilyQiRabbit/CodingRepository/blob/master/Frameworks/WebpackConfigHandbook/code-splitting-1.md) 的例子，进一步演示这个概念。上一篇中，我们生成了一个独立的 chunk：lodash.bundle。但问题是，不需要任何用户这个 bundle 交互就会加载 —— 这意味着每次加载页面时，请求都会被触发。这对其实没有太大帮助，而且可能会对性能产生负面影响。
 
 下面，我们将添加一些用户交互的需求：在用户单击按钮时将一些文本记录到控制台。但是，我们将等待加载代码(print.js)，直到第一次发生交互。为此，我们要重新处理「代码分割」中的最后一个动态导入示例，并将 lodash 保留在主块中。
 
