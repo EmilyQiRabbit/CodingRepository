@@ -137,3 +137,20 @@ webpack v4 及其之后的版本会在生产模式下自动的最小化代码。
 
 ## CLI 选项
 
+上文有一些配置是支持命令行的。比如：`--optimize-minimize`，`--define process.env.NODE_ENV="'production'"`，`webpack -p` 等等。
+
+但是还是推荐使用配置文件来完成相关配置，因为这样代码可读性更好，也比较方便维护。
+
+## 附
+
+本篇其实有很多值得扩展学习的地方，比如：
+
+* [webpack-merge](https://github.com/survivejs/webpack-merge)
+
+* [模式](https://webpack.js.org/concepts/mode/)
+
+* [DefinePlugin](https://webpack.js.org/plugins/define-plugin/)
+
+* [TerserWebpackPlugin](https://webpack.js.org/plugins/terser-webpack-plugin/)
+
+* [devtool](https://webpack.js.org/configuration/devtool/)
