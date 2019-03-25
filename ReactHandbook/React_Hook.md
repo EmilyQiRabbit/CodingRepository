@@ -71,6 +71,8 @@ React 没有办法将一个可复用的行为“附加”到组件上（比如�
 
 ## Hooks 概览
 
+这一章下的每一小节，后文都会再次展开细讲。
+
 ### State Hook
 
 ```js
@@ -118,5 +120,184 @@ hook 就是一个函数，它能让你在函数组件中进入到 React 的状�
 React 提供了数个内建的 hook，例如 useState。你也可以创建你自己的 hook，来重用组件间的状态相关的逻辑。我们还是先来学习内建的 hook。
 
 ### Effect hook
+
+我们很有可能会需要从远端获取数据，提交数据，或者手动修改 DOM。我们将这些操作称为“副作用”，或者就简单称为“作用”（effect），因为它们能影响其他组件，并且不是在渲染的时候完成的。
+
+Effect hook，`useEffect`，加入了完成这些副作用的能力。它的目的和 React class 结构下的 `componentDidMount`， `componentDidUpdate`， `componentWillUnmount` 一样，但是统一到了一个单独的 API 中。
+
+例如：
+
+```js
+import React, { useState, useEffect } from 'react';
+
+function Example() {
+  const [count, setCount] = useState(0);
+
+  // 与 componentDidMount 和 componentDidUpdate 类似：
+  useEffect(() => {
+    // Update the document title using the browser API
+    document.title = `You clicked ${count} times`;
+  });
+
+  return (
+    <div>
+      <p>You clicked {count} times</p>
+      <button onClick={() => setCount(count + 1)}>
+        Click me
+      </button>
+    </div>
+  );
+}
+```
+
+当你调用 useEffect 的时候，你就是要求 React 在 DOM 变化后调用你的 effect 函数。useEffect 在组件内声明，所以他们能够获取组件的 props 和 state。默认状态下，React 在每次渲染后都会调用 useEffect —— 包括首次渲染。（我们会在后面的章节中详细讨论，并将它和 class 的生命周期方法做对比）
+
+useEffect 也可以用来释放资源，方法是返回一个函数。例如，如下这个组件用 effect 来订阅了某个信息，然后通过取消订阅来释放资源：
+
+```js
+import React, { useState, useEffect } from 'react';
+
+function FriendStatus(props) {
+  const [isOnline, setIsOnline] = useState(null);
+
+  function handleStatusChange(status) {
+    setIsOnline(status.isOnline);
+  }
+
+  useEffect(() => {
+    ChatAPI.subscribeToFriendStatus(props.friend.id, handleStatusChange);
+
+    return () => {
+      ChatAPI.unsubscribeFromFriendStatus(props.friend.id, handleStatusChange);
+    };
+  });
+
+  if (isOnline === null) {
+    return 'Loading...';
+  }
+  return isOnline ? 'Online' : 'Offline';
+}
+```
+
+这样，React 将会在组件卸载时以及重新运行 effect 之前取消订阅。
+
+和 useState 一样，在一个组件中，你可以使用不止一次 useEffect：
+
+```js
+function FriendStatusWithCounter(props) {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    document.title = `You clicked ${count} times`;
+  });
+
+  const [isOnline, setIsOnline] = useState(null);
+  useEffect(() => {
+    ChatAPI.subscribeToFriendStatus(props.friend.id, handleStatusChange);
+    return () => {
+      ChatAPI.unsubscribeFromFriendStatus(props.friend.id, handleStatusChange);
+    };
+  });
+
+  function handleStatusChange(status) {
+    setIsOnline(status.isOnline);
+  }
+  // ...
+```
+
+### hook 的规则
+
+hook 时 js 函数，但是他们必须遵守两个规则：
+
+* 不可以在循环、条件句或者嵌套中使用 hook
+
+* 只在 React 函数组件中调用 hook。不要在普通的 js 函数中调用它。
+
+我们提供了一个 [linter-plugin](https://www.npmjs.com/package/eslint-plugin-react-hooks) 来强制执行这些规则。
+
+### 自定义 hook
+
+有时候你会想要在组件之间重用一些状态相关的逻辑。
+
+有两个比较流行的传统方法：hoc 和 render props。现在，自定义的 hook 可以帮助你完成这个任务，而不用在组件树上增加新的组件。
+
+前文我们介绍了组件 FriendStatus，它调用了 useState 和 useEffect Hooks 来订阅好友的在线状态。现在假设我们想在其他组件里面重用这部分逻辑。
+
+首先，我们将这部分逻辑抽象到一个名为 useFriendStatus 的自定义 hook 中：
+
+```js
+import React, { useState, useEffect } from 'react';
+
+function useFriendStatus(friendID) {
+  const [isOnline, setIsOnline] = useState(null);
+
+  function handleStatusChange(status) {
+    setIsOnline(status.isOnline);
+  }
+
+  useEffect(() => {
+    ChatAPI.subscribeToFriendStatus(friendID, handleStatusChange);
+    return () => {
+      ChatAPI.unsubscribeFromFriendStatus(friendID, handleStatusChange);
+    };
+  });
+
+  return isOnline;
+}
+```
+
+参数是好友 id，并返回好友是否在线。
+
+现在我们在两个组件中使用：
+
+```js
+function FriendStatus(props) {
+  const isOnline = useFriendStatus(props.friend.id);
+
+  if (isOnline === null) {
+    return 'Loading...';
+  }
+  return isOnline ? 'Online' : 'Offline';
+}
+```
+
+```js
+function FriendListItem(props) {
+  const isOnline = useFriendStatus(props.friend.id);
+
+  return (
+    <li style={{ color: isOnline ? 'green' : 'black' }}>
+      {props.friend.name}
+    </li>
+  );
+}
+```
+
+这两个组件的状态可以是完全独立的。hook 是复用状态相关的逻辑，而不仅仅是状态的一个方法。事实上，每次调用 hook 都会产生一个完全独立的 state，所以你甚至可以在一个组件里调用两次自定义 hook。
+
+自定义 hook 更像是一种约定而不是功能。如果一个方法的名字以 use 开头并且调用了其他 hook，我们就认为它是一个自定义 hook。useSomething 这种命名习惯让 liner plugin 可以定位使用了 hooks 的代码，并寻找到问题。
+
+你可以写很多自定义 hook，比如表单处理，动画，声明订阅，时间处理，等等。我们期待社区里将会出现的各种个样的 hooks～
+
+### 其他 hook
+
+useContext：
+
+```js
+function Example() {
+  const locale = useContext(LocaleContext);
+  const theme = useContext(ThemeContext);
+  // ...
+}
+```
+
+useReducer：
+
+```js
+function Todos() {
+  const [todos, dispatch] = useReducer(todosReducer);
+  // ...
+```
+
+## 使用 State Hook
 
 
