@@ -350,4 +350,128 @@ math.add(2, 4);
 
 [戳这里](https://github.com/EmilyQiRabbit/CodingRepository/blob/master/InterviewSummery/js.md#显式绑定)
 
+---------------
+
+## Promise
+
+重点：
+
+* promise 有 3 种状态：pending、fulfilled 或 rejected。状态改变只能是 pending->fulfilled 或者 pending->rejected，**状态一旦改变则不能再变**。
+
+* promise 每次调用 .then 或者 .catch 都会返回一个新的 promise，从而实现了链式调用。
+
+* then 函数中因为返回任意一个非 promise 的值都会被包裹成 promise 对象，即 `return new Error('error!!!')` 等价于 `return Promise.resolve(new Error('error!!!'))`。
+
+* 解释：.then 或 .catch 返回的值**不能是 promise 本身**，否则会造成死循环。
+
+* 解释：.then 可以接收两个参数，第一个是处理成功的函数，第二个是处理错误的函数。.catch 是 .then 第二个参数的简便写法，但是它们用法上有一点需要注意：.then 的第二个处理错误的函数捕获不了第一个处理成功的函数抛出的错误，而后续的 .catch 可以捕获之前的错误。
+
+* **process.nextTick 和 promise.then 都属于 microtask，而 setImmediate 属于 macrotask，在事件循环的 check 阶段执行。事件循环的每个阶段（macrotask）之间都会执行 microtask，事件循环的开始会先执行一次 microtask。**
+
+### Why promise
+
+with promise vs without promise:
+
+```js
+请求1(function(请求结果1){
+    请求2(function(请求结果2){
+        请求3(function(请求结果3){
+            请求4(function(请求结果4){
+                请求5(function(请求结果5){
+                    请求6(function(请求结果3){
+                        ...
+                    })
+                })
+            })
+        })
+    })
+})
+
+/**
+ * 代码臃肿。
+ * 可读性差。
+ * 只能在回调里处理异常。
+ * 耦合度过高，可维护性差。
+ * 代码复用性差。
+ * 容易滋生 bug。
+ * 总之就是各种烦...不友好，简直反人类...
+*/
+
+// with promise!
+
+new Promise(请求1)
+    .then(请求2(请求结果1))
+    .then(请求3(请求结果2))
+    .then(请求4(请求结果3))
+    .then(请求5(请求结果4))
+    .catch(处理异常(异常信息))
+
+```
+
+### 几个重要 API
+
+#### Promise.resolve()
+
+Promise.resolve 将现有对象转为 Promise 对象。
+
+1. 参数是一个 Promise 实例
+
+如果参数是 Promise 实例，那么 `Promise.resolve` 将**不做任何修改、原封不动**地返回这个实例。
+
+2. 参数是一个 thenable 对象
+
+`Promise.resolve` 方法会将这个对象转为 Promise 对象，然后就立即执行 thenable 对象的 then 方法。(所以其实返回的这个 Promise 对象就是一个状态为 **resolved** 的 Promise 对象)
+
+3. 参数不是具有 then 方法的对象，或根本就不是对象
+
+如果参数是一个原始值，或者是一个不具有 then 方法的对象，则 `Promise.resolve` 方法返回一个新的 Promise 对象，状态为 **resolved**。
+
+Promise.resolve方法的参数，会同时传给回调函数
+
+4. 不带有任何参数
+
+Promise.resolve 方法允许调用时不带参数，直接返回一个 **resolved** 状态的 Promise 对象。
+
+所以，如果希望得到一个 Promise 对象，比较方便的方法就是直接调用 Promise.resolve 方法。
+
+#### Promise.reject()
+
+Promise.reject(reason)方法也会返回一个新的 Promise 实例，该实例的状态为rejected。
+
+```js
+const p = Promise.reject('出错了');
+// 等同于
+const p = new Promise((resolve, reject) => reject('出错了'))
+```
+
+#### Promise.prototype.then() / .catch() / .finally()
+
+#### Promise.all() / .race()
+
+race：类方法，多个 Promise 任务同时执行，返回最先执行结束的 Promise 任务的结果，不管这个 Promise 结果是成功还是失败。
+
+all：类方法，多个 Promise 任务同时执行。
+如果全部成功执行，则以数组的方式返回所有 Promise 任务的执行结果。 如果有一个 Promise 任务 rejected，则只返回 rejected 任务的结果。
+
+#### Promise 练习题
+
+1. Promise 构造函数是同步执行的，promise.then 中的函数是异步执行的。
+
+```js
+const promise = new Promise((resolve, reject) => {
+  console.log(1)
+  resolve()
+  console.log(2)
+})
+promise.then(() => {
+  console.log(3)
+})
+console.log(4)
+
+// 结果：
+// 1
+// 2
+// 4
+// 3
+```
 
