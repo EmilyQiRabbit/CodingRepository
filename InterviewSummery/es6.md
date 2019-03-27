@@ -1,5 +1,7 @@
 # es6 重点总结
 
+> 部分摘自大神博客：http://es6.ruanyifeng.com
+
 ## let 和 const
 
 ### 不存在变量提升
@@ -230,23 +232,261 @@ function* helloWorldGenerator() {
   return 'ending';
 }
 
+// 此时还没有开始执行哦！
 var hw = helloWorldGenerator();
 
 hw.next()
+// 执行到第一个 yield
 // { value: 'hello', done: false }
 
 hw.next()
+// 执行到第一个 yield
 // { value: 'world', done: false }
 
 hw.next()
+// 执行到 return，return 的时候，done 已经是 true 啦！
 // { value: 'ending', done: true }
 
 hw.next()
+// 继续执行，没有值了，并且 done 一直是 true 了
 // { value: undefined, done: true }
 
 ```
 
+### Generator 和 for...of 循环
+
+**for...of 循环可以自动遍历 Generator 函数运行时生成的 Iterator 对象，且此时不再需要调用 next 方法。**
+
+⚠️这里需要注意，一旦 next 方法的返回对象的 done 属性为 true，for...of 循环就会中止
+
+栗子🌰：
+
+```js
+function* foo() {
+  yield 1;
+  yield 2;
+  yield 3;
+  yield 4;
+  yield 5;
+  return 6;
+}
+
+for (let v of foo()) { // 注意⚠️这里是要调用 Generator 函数
+  console.log(v);
+}
+// 1 2 3 4 5
+```
+
+### Generator.prototype.throw() / .return() 
+
+Generator 函数**返回的遍历器**对象，都有一个 throw 方法，可以在**函数体外抛出错误，然后在 Generator 函数体内**捕获。
+
+Generator 函数**返回的遍历器**对象，还有一个 return 方法，可以返回给定的值，并且终结遍历 Generator 函数。
+
+注意，这两个方法都是返回的遍历器对象的方法。<br>
+所以这两个方法其实是 **Generator 函数外部和函数内部沟通的方法**。
+
+next()、throw()、return() 这三个方法本质上是同一件事，可以放在一起理解。它们的作用都是让 Generator 函数恢复执行，**并且使用不同的语句替换 yield 表达式**。
+
+### yield* 表达式
+
+如果在 Generator 函数内部，调用另一个 Generator 函数，默认情况下是没有效果的。
+
+这个就需要用到 yield* 表达式，用来在一个 Generator 函数里面执行另一个 Generator 函数。
+
+```js
+function* bar() {
+  yield 'x';
+  yield* foo();
+  yield 'y';
+}
+
+// 等同于
+function* bar() {
+  yield 'x';
+  yield 'a';
+  yield 'b';
+  yield 'y';
+}
+
+// 这个是无效的
+function* bar() {
+  yield 'x';
+  foo();
+  yield 'y';
+}
+```
+
+### Generator 函数的 this
+
+Generator 函数总是返回一个遍历器，ES6 规定这个遍历器是 Generator 函数的实例，也继承了 Generator 函数的 prototype 对象上的方法。
+
+```js
+function* g() {}
+
+g.prototype.hello = function () {
+  return 'hi!';
+};
+
+let obj = g();
+
+obj instanceof g // true
+obj.hello() // 'hi!'
+```
+
+但是，Generator 函数不能跟 new 命令一起用，会报错。
+
+高能预警：
+
+那么，有没有办法让 Generator 函数返回一个正常的对象实例，既可以用 next 方法，又可以获得正常的 this？
+
+可以用 call 来完成：
+
+```js
+function* F() {
+  this.a = 1;
+  yield this.b = 2;
+  yield this.c = 3;
+}
+var obj = {};
+var f = F.call(obj);
+
+f.next();  // Object {value: 2, done: false}
+f.next();  // Object {value: 3, done: false}
+f.next();  // Object {value: undefined, done: true}
+
+obj.a // 1
+obj.b // 2
+obj.c // 3
+```
+
+更高级的方法是：
+
+```js
+function* F() {
+  this.a = 1;
+  yield this.b = 2;
+  yield this.c = 3;
+}
+var f = F.call(F.prototype);
+
+f.next();  // Object {value: 2, done: false}
+f.next();  // Object {value: 3, done: false}
+f.next();  // Object {value: undefined, done: true}
+
+f.a // 1
+f.b // 2
+f.c // 3
+```
+
 ## async
+
+async 函数就是 Generator 函数的语法糖。
+
+基本用法：
+
+```js
+// readfile 返回一个 Promise，跟在 await 后面
+const asyncReadFile = async function () {
+  const f1 = await readFile('/etc/fstab');
+  const f2 = await readFile('/etc/shells');
+  console.log(f1.toString());
+  console.log(f2.toString());
+};
+```
+
+### Async 如何封装 Generator
+
+async 函数的实现，就是将 Generator 函数和自动执行器，包装在一个函数里。
+
+```js
+function fn(args){ 
+  return spawn(function*() { // spawn 函数就是自动执行器。
+    // ...
+  }); 
+}
+```
+
+spawn 函数的实现：
+
+```js
+function spawn(genF) { // genF 是一个 Generator 函数 
+  return new Promise(function(resolve, reject) {
+    var gen = genF();
+    // 递归调用
+    function step(nextF) {
+      try {
+        var next = nextF();
+      } catch(e) {
+        return reject(e); 
+      }
+      if(next.done) {
+        return resolve(next.value);
+      } 
+      // The Promise.resolve(value) method returns a Promise object that is resolved with the given value.
+      Promise.resolve(next.value).then(function(v) {
+        step(function() { return gen.next(v); });      
+      }, function(e) {
+        step(function() { return gen.throw(e); });
+      });
+    }
+
+    step(function() { return gen.next(undefined); });
+  });
+}
+```
+
+...其实我没太看懂...
+
+总之就记住，**async 函数的实现，就是将 Generator 函数和自动执行器，包装在一个函数里**嗯嗯。
+
+先略过，不求甚解了～
+
+### async 函数会返回一个 Promise 对象
+
+```js
+async function f() {
+  return 'hello world';
+}
+
+f().then(v => console.log(v))
+// "hello world"
+```
+
+### 错误处理
+
+```js
+async function f() {
+  await new Promise(function (resolve, reject) {
+    throw new Error('出错了');
+  });
+}
+
+f()
+.then(v => console.log(v))
+.catch(e => console.log(e))
+// Error：出错了
+```
+划重点：
+
+1. 任何一个 await 语句后面的 Promise 对象变为 reject 状态，那么整个 async 函数都会中断执行。
+
+2. 如果我们希望即使前一个异步操作失败，也不要中断后面的异步操作。这时可以将第一个 await 放在 try...catch 结构里面，这样不管这个异步操作是否成功，第二个 await 都会执行。
+
+或者可以在 await 后面的 Promise 对象再跟一个 catch 方法，处理前面可能出现的错误。
+
+```js
+async function f() {
+  await Promise.reject('出错了')
+    .catch(e => console.log(e));
+  return await Promise.resolve('hello world');
+}
+
+f()
+.then(v => console.log(v))
+// 出错了
+// hello world
+```
 
 ## class
 

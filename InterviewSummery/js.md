@@ -570,7 +570,7 @@ console.log( bar.a ); // 2
 
 使用 new 来调用 `foo(..)` 时，我们会构造一个新对象并把它绑定到 `foo(..)` 调用中的 this 上。new 是最后一种可以影响函数调用时 this 绑定行为的方法，我们称之为 new 绑定。
 
-# Async如何封装Generator
+# Async 如何封装 Generator
 
 async 函数的实现，就是将 Generator 函数和自动执行器，包装在一个函数里。
 
