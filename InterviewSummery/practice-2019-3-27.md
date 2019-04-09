@@ -81,6 +81,59 @@ document.addEventListener('DOMContentLoaded',function(){
 
 🔗：http://www.ruanyifeng.com/blog/2015/07/flex-grammar.html
 
+```js
+import React from 'react'
+
+class FlexStyleComponent extends React.Component {
+  render () {
+    return (<div class='flex_container'>
+      <div class='flex_item'>flex item 1 </div>
+      <div class='flex_item'>flex item 2 </div>
+      <div class='flex_item'>flex item 3 </div>
+      <div class='flex_item'>flex item 4 </div>
+      <div class='flex_item'>flex item 5 </div>
+      <div class='flex_item'>flex item 6 </div>
+    </div>
+    );
+  }
+}
+
+export default FlexStyleComponent
+```
+
+```css
+/***** flex test ******/
+.flex_container {
+  border: 1px gray solid;
+  display: flex;
+  flex-direction: row; /** column **/
+  flex-wrap: wrap; /** nowrap **/
+  justify-content: center;
+  /** flex-start | flex-end | center | space-between | space-around **/
+  align-content: center;
+  /** flex-start | flex-end | center | space-between | space-around | stretch **/
+  align-items: center;
+  /** flex-start | flex-end | center | baseline | stretch **/
+}
+
+.flex_item {
+  background: pink;
+  border: 1px gray solid;
+  text-align: center;
+  width: 25%;
+  box-sizing: border-box;
+  padding: 20px;
+  flex-grow: 1; /* default 0 */
+  flex-shrink: 0; /* default 1 */
+}
+```
+
+ps: 如果所有项目的 flex-grow 属性都为1，则它们将等分剩余空间（如果有的话）。如果一个项目的 flex-grow 属性为2，其他项目都为1，则前者占据的剩余空间将比其他项多一倍。
+
+如果所有项目的 flex-shrink 属性都为1，当空间不足时，都将等比例缩小。如果一个项目的 flex-shrink 属性为0，其他项目都为1，则空间不足时，前者不缩小。
+
+栗子写于：https://stackblitz.com/edit/react-3bgjtj?file=FlexStyleComponent.js
+
 ### 4. Array.prototype.reduce
 
 > reduce() 方法对累加器和数组中的每个元素（从左到右）应用一个函数，将其简化为单个值。
