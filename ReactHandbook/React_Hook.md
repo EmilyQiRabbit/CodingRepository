@@ -55,7 +55,7 @@ React 没有办法将一个可复用的行为“附加”到组件上（比如�
 
 为了解决这个问题，Hooks 让你能基于那些部分是相关的，将一个组件分散为更小的函数，而不是把这些逻辑分散到不同的生命周期函数中。你也可以选择使用 reducer 来管理组件本地状态，来让状态更加可预期。
 
-### Class 让人和解析器都很迷惑
+### Class 让开发者和解析器都很迷惑
 
 我们发现，class 可能是学习 React 的一大关卡。我们必须明白 this 在 JS 中是如何工作的，而 this 在 JS 中的工作机理和其他语言都不太一样。你还必须记得绑定事件函数。而且代码可能会非常冗长。人们可能很容易理解 props、state，以及数据流，但是依旧很难理解 class。React 的函数和类组件的区别以及什么时候应该用哪个经常造成分歧，甚至是在很有经验的 React 开发者之间。
 
@@ -115,7 +115,7 @@ function ExampleWithManyStates() {
 
 #### 到底什么是 hook？
 
-hook 就是一个函数，它能让你在函数组件中进入到 React 的状态和生命周期特性中。hook 在 class 中并不能工作 —— 它们是为了让你能不用 class 使用 React 的方式。（我们不建议重写你现在的组件，但是你可以在新的组件中使用 hook。）
+hook 就是一个函数，它能让你在函数组件中进入到 React 的状态和生命周期特性中。hook 在 class 中并**不能**工作 —— 它们是为了让你能**不用 class 使用 React 的方式**。（我们不建议重写你现在的组件，但是你可以在新的组件中使用 hook。）
 
 React 提供了数个内建的 hook，例如 useState。你也可以创建你自己的 hook，来重用组件间的状态相关的逻辑。我们还是先来学习内建的 hook。
 
@@ -206,7 +206,7 @@ function FriendStatusWithCounter(props) {
 
 ### hook 的规则
 
-hook 时 js 函数，但是他们必须遵守两个规则：
+hook 是 js 函数，但是他们必须遵守两个规则：
 
 * 不可以在循环、条件句或者嵌套中使用 hook
 
@@ -300,4 +300,115 @@ function Todos() {
 
 ## 使用 State Hook
 
+### hook vs class
 
+```js
+import React, { useState } from 'react';
+
+function Example() {
+  // Declare a new state variable, which we'll call "count"
+  const [count, setCount] = useState(0);
+
+  return (
+    <div>
+      <p>You clicked {count} times</p>
+      <button onClick={() => setCount(count + 1)}>
+        Click me
+      </button>
+    </div>
+  );
+}
+```
+
+```js
+class Example extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      count: 0
+    };
+  }
+
+  render() {
+    return (
+      <div>
+        <p>You clicked {this.state.count} times</p>
+        <button onClick={() => this.setState({ count: this.state.count + 1 })}>
+          Click me
+        </button>
+      </div>
+    );
+  }
+}
+```
+
+### Hooks and Function Components
+
+Function Components 形式如下：
+
+```js
+const Example = (props) => {
+  // You can use Hooks here!
+  return <div />;
+}
+```
+
+它之前被认为是「无状态组件」，现在，我们可以使用 hook 来在函数组件中使用 state。
+
+牢记，hook 在 class 中不能工作。
+
+### 声明状态变量
+
+class:
+
+```js
+class Example extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      count: 0
+    };
+  }
+```
+
+hook:
+
+```js
+import React, { useState } from 'react';
+
+function Example() {
+  // Declare a new state variable, which we'll call "count"
+  const [count, setCount] = useState(0);
+```
+
+**1. useState 做了什么？**
+
+它声明了一个 state 变量。这种方式可以在函数的调用过程中保留住某些值 —— 它是一种全新的方式，提供了和 class 的 this.state 同样的功能。通常情况下，当函数执行完成后，变量就会消失，但是这些状态变量会被 React 保留。
+
+**2. 传递给 useState 的参数是什么？**
+
+传递给 useState 的就是初始状态，它可以是任何类型的值。我们还可以不止一次的调用 useState。
+
+**3. useState 返回了什么？**
+
+返回了一对儿值：当前状态的值，以及可以更新状态的函数。类似于：this.state.xxx 和 this.setState。
+
+### 状态的读取和使用
+
+```js
+<p>You clicked {this.state.count} times</p>
+...
+<button onClick={() => this.setState({ count: this.state.count + 1 })}>
+  Click me
+</button>
+```
+
+```js
+<p>You clicked {count} times</p>
+...
+<button onClick={() => setCount(count + 1)}>
+  Click me
+</button>
+```
+
+## 使用 Effect Hook
