@@ -412,3 +412,153 @@ function Example() {
 ```
 
 ## 使用 Effect Hook
+
+Effect Hook 让你能在函数组件中定义一些「副作用」（side effects）：
+
+```js
+import React, { useState, useEffect } from 'react';
+
+function Example() {
+  const [count, setCount] = useState(0);
+
+  // Similar to componentDidMount and componentDidUpdate:
+  useEffect(() => {
+    // Update the document title using the browser API
+    document.title = `You clicked ${count} times`;
+  });
+
+  return (
+    <div>
+      <p>You clicked {count} times</p>
+      <button onClick={() => setCount(count + 1)}>
+        Click me
+      </button>
+    </div>
+  );
+}
+```
+
+这个例子中，我们在每次点击之后改变了 html 文档的 title。
+
+其实，你可以把这个 useEffect 看作是 React class 生命周期方法：componentDidMount、componentDidUpdate、componentWillUnmount 的结合体。
+
+在 React 组件中，有两种形式的「副作用」：一种是不需要做资源释放/清理的，另一种则需要。
+
+### 不需要清理的副作用函数
+
+有时候你需要在 React 更新 DOM 后执行某些操作。比如发起网络请求，写日志等等，这些操作并不需要资源释放/清理。
+
+使用 Hooks 的例子：
+
+```js
+import React, { useState, useEffect } from 'react';
+
+function Example() {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    document.title = `You clicked ${count} times`;
+  });
+
+  return (
+    <div>
+      <p>You clicked {count} times</p>
+      <button onClick={() => setCount(count + 1)}>
+        Click me
+      </button>
+    </div>
+  );
+}
+```
+
+> Placing useEffect inside the component lets us access the count state variable (or any props) right from the effect. We don’t need a special API to read it — it’s already in the function scope. Hooks embrace JavaScript closures and avoid introducing React-specific APIs where JavaScript already provides a solution.
+
+> Does useEffect run after every render? Yes! By default, it runs both after the first render and after every update. 
+
+并且，和 componentDidMount 以及 componentDidUpdate 不同，Effect 函数并不会阻碍浏览器渲染。因为大多数的副作用并不需要同步执行。但是如果在某些情境下需要，则可以参见 [useLayoutEffect Hook](https://reactjs.org/docs/hooks-reference.html#uselayouteffect)
+
+### 需要清理的副作用函数
+
+使用 Hooks:
+
+```js
+import React, { useState, useEffect } from 'react';
+
+function FriendStatus(props) {
+  const [isOnline, setIsOnline] = useState(null);
+
+  useEffect(() => {
+    function handleStatusChange(status) {
+      setIsOnline(status.isOnline);
+    }
+
+    ChatAPI.subscribeToFriendStatus(props.friend.id, handleStatusChange);
+    // Specify how to clean up after this effect:
+    return function cleanup() {
+      ChatAPI.unsubscribeFromFriendStatus(props.friend.id, handleStatusChange);
+    };
+  });
+
+  if (isOnline === null) {
+    return 'Loading...';
+  }
+  return isOnline ? 'Online' : 'Offline';
+}
+```
+
+> When exactly does React clean up an effect? React performs the cleanup when the component unmounts. However, as we learned earlier, effects run for every render and not just once. **This is why React also cleans up effects from the previous render before running the effects next time**.
+
+### 奖励关卡：Tips for Using Effects
+
+#### 使用多个 Effects
+
+class 组件存在的一个问题就是，在一个生命周期方法里面，我们不得不把没什么逻辑关系的代码放在一起。而使用 Hook 的时候，我们可以通过使用多次 useEffect，把不同逻辑的代码分开：
+
+```js
+function FriendStatusWithCounter(props) {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    document.title = `You clicked ${count} times`;
+  });
+
+  const [isOnline, setIsOnline] = useState(null);
+  useEffect(() => {
+    function handleStatusChange(status) {
+      setIsOnline(status.isOnline);
+    }
+
+    ChatAPI.subscribeToFriendStatus(props.friend.id, handleStatusChange);
+    return () => {
+      ChatAPI.unsubscribeFromFriendStatus(props.friend.id, handleStatusChange);
+    };
+  });
+  // ...
+}
+```
+
+> Hooks lets us split the code based on what it is doing rather than a lifecycle method name. React will apply every effect used by the component, in the order they were specified.
+
+#### 通过忽略一些 Effetct 来优化性能
+
+```js
+useEffect(() => {
+  document.title = `You clicked ${count} times`;
+}, [count]); // Only re-run the effect if count changes
+```
+
+以及：
+
+```js
+useEffect(() => {
+  function handleStatusChange(status) {
+    setIsOnline(status.isOnline);
+  }
+
+  ChatAPI.subscribeToFriendStatus(props.friend.id, handleStatusChange);
+  return () => {
+    ChatAPI.unsubscribeFromFriendStatus(props.friend.id, handleStatusChange);
+  };
+}, [props.friend.id]); // Only re-subscribe if props.friend.id changes
+```
+
+## Hook 的规则
