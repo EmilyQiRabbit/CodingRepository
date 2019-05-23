@@ -562,3 +562,35 @@ useEffect(() => {
 ```
 
 ## Hook 的规则
+
+### 只在最顶层代码中使用 Hooks
+
+不要在循环，条件句或者嵌套中使用 Hooks。
+
+### 只在 React 函数中调用 Hooks
+
+不要在普通的 JS 函数中调用 Hooks。
+
+### ESLint 插件
+
+> We released an ESLint plugin called eslint-plugin-react-hooks that enforces these two rules. You can add this plugin to your project if you’d like to try it.
+
+```json
+// Your ESLint configuration
+{
+  "plugins": [
+    // ...
+    "react-hooks"
+  ],
+  "rules": {
+    // ...
+    "react-hooks/rules-of-hooks": "error", // Checks rules of Hooks
+    "react-hooks/exhaustive-deps": "warn" // Checks effect dependencies
+  }
+}
+```
+
+## Building Your Own Hooks
+
+
+
