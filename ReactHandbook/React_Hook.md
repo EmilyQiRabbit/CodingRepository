@@ -590,7 +590,69 @@ useEffect(() => {
 }
 ```
 
-## Building Your Own Hooks
+## 构建属于你的 Hooks
+
+通过构建自己的 Hooks，可以让你抽象出组件逻辑，并将其作为可复用的方法。
+
+之前我们学习「使用 Effect Hook」的时候，我们在一个聊天应用的例子中看到这样一个组件，它可以展示出一个信息，表示这个好友是否在线：
+
+```js
+import React, { useState, useEffect } from 'react';
+
+function FriendStatus(props) {
+  const [isOnline, setIsOnline] = useState(null);
+
+  useEffect(() => {
+    function handleStatusChange(status) {
+      setIsOnline(status.isOnline);
+    }
+
+    ChatAPI.subscribeToFriendStatus(props.friend.id, handleStatusChange);
+    return () => {
+      ChatAPI.unsubscribeFromFriendStatus(props.friend.id, handleStatusChange);
+    };
+  });
+
+  if (isOnline === null) {
+    return 'Loading...';
+  }
+  return isOnline ? 'Online' : 'Offline';
+}
+```
+
+假设在我们的聊天应用中还有一个联系人列表，当好友在线时我们想用绿色渲染好友名字。我们可以将上面的代码逻辑拷贝到这个联系人列表组件中，但这并不是最理想的解决方案：
+
+```js
+import React, { useState, useEffect } from 'react';
+
+function FriendListItem(props) {
+  const [isOnline, setIsOnline] = useState(null);
+
+  useEffect(() => {
+    function handleStatusChange(status) {
+      setIsOnline(status.isOnline);
+    }
+
+    ChatAPI.subscribeToFriendStatus(props.friend.id, handleStatusChange);
+    return () => {
+      ChatAPI.unsubscribeFromFriendStatus(props.friend.id, handleStatusChange);
+    };
+  });
+
+  return (
+    <li style={{ color: isOnline ? 'green' : 'black' }}>
+      {props.friend.name}
+    </li>
+  );
+}
+```
+
+我们希望的是复用这段逻辑。
+
+> Traditionally in React, we’ve had two popular ways to share stateful logic between components: **render props** and **higher-order components**. We will now look at how Hooks solve many of the same problems without forcing you to add more components to the tree.
+
+### 抽象出自定义 Hook
 
 
+### 使用自定义 Hook
 
