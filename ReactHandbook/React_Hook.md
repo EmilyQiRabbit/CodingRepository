@@ -653,6 +653,108 @@ function FriendListItem(props) {
 
 ### 抽象出自定义 Hook
 
+自定义 Hook 其实就是一个用 `use` 开头的 JavaScript 函数，并且在这个函数中调用了其他的 Hook。例如：
+
+```js
+import React, { useState, useEffect } from 'react';
+
+function useFriendStatus(friendID) {
+  const [isOnline, setIsOnline] = useState(null);
+
+  useEffect(() => {
+    function handleStatusChange(status) {
+      setIsOnline(status.isOnline);
+    }
+
+    ChatAPI.subscribeToFriendStatus(friendID, handleStatusChange);
+    return () => {
+      ChatAPI.unsubscribeFromFriendStatus(friendID, handleStatusChange);
+    };
+  });
+
+  return isOnline;
+}
+```
+
+这段代码没有什么新的内容，完全就是从上面拷贝下来的。注意，这个 Hook 也和其他 Hook 一样，不要在条件句和嵌套，循环中调用。
+
+这个 Hook 的目的就是订阅好友状态。参数是好友 id，返回好友在线状态。
 
 ### 使用自定义 Hook
 
+```js
+function FriendStatus(props) {
+  const isOnline = useFriendStatus(props.friend.id);
+
+  if (isOnline === null) {
+    return 'Loading...';
+  }
+  return isOnline ? 'Online' : 'Offline';
+}
+```
+
+```js
+function FriendListItem(props) {
+  const isOnline = useFriendStatus(props.friend.id);
+
+  return (
+    <li style={{ color: isOnline ? 'green' : 'black' }}>
+      {props.friend.name}
+    </li>
+  );
+}
+```
+
+> 注：自定义 Hook 请务必使用 use 开头。这是为了代码可读性，让别人一眼就知道，这是一个自定义的 Hook
+
+> 使用相同的 Hook 的两个组件是共享了状态吗？答案是并不，自定义 Hook 为的是复用状态相关的逻辑，但是真正的组件状态和 effect 其实都是独立的。
+
+> How does a custom Hook get isolated state? Each call to a Hook gets isolated state. Because we call useFriendStatus directly, from React’s point of view our component just calls useState and useEffect. And as we learned earlier, we can call useState and useEffect many times in one component, and they will be completely independent.
+
+小贴士：Hook 之间传递参数
+
+由于 Hook 其实就是函数，我们当然也可以在它们之间传递参数。
+
+```js
+const friendList = [
+  { id: 1, name: 'Phoebe' },
+  { id: 2, name: 'Rachel' },
+  { id: 3, name: 'Ross' },
+];
+
+function ChatRecipientPicker() {
+  const [recipientID, setRecipientID] = useState(1);
+  const isRecipientOnline = useFriendStatus(recipientID);
+
+  return (
+    <>
+      <Circle color={isRecipientOnline ? 'green' : 'red'} />
+      <select
+        value={recipientID}
+        onChange={e => setRecipientID(Number(e.target.value))}
+      >
+        {friendList.map(friend => (
+          <option key={friend.id} value={friend.id}>
+            {friend.name}
+          </option>
+        ))}
+      </select>
+    </>
+  );
+}
+```
+
+## Hooks API
+
+* 基本 Hook
+  * useState
+  * useEffect
+  * useContext
+* 其他更多 Hook
+  * useReducer
+  * useCallback
+  * useMemo
+  * useRef
+  * useImperativeHandle
+  * useLayoutEffect
+  * useDebugValue
